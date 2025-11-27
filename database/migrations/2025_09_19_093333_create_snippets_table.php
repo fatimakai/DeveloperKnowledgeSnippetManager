@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('snippets', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('tag_names')->nullable();
+            // $table->string('tag_names')->nullable();
             $table->text('code');
             $table->string('language');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

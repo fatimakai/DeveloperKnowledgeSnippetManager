@@ -59,13 +59,19 @@
     <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Tags (comma separated)
     </label>
-    <input type="text" name="tags" id="tags"
-           value="{{ old('tags') }}"
-           class="mt-2 block w-full rounded-md border-gray-300 dark:border-gray-700
+
+<div class="relative">
+    <input type="text" id="tags" name="tags" class="mt-2 block w-full rounded-md border-gray-300 dark:border-gray-700
                   dark:bg-gray-900 dark:text-gray-200 shadow-sm
                   focus:border-blue-500 focus:ring focus:ring-blue-200
                   focus:ring-opacity-50 p-3"
            placeholder="e.g. PHP, Laravel, Sorting">
+</div>
+
+
+<div id="tag-cloud" class="flex flex-wrap gap-2 mt-2"></div>
+
+
 </div>
 
             <!-- Actions -->
@@ -88,3 +94,49 @@
         </div>
     </div>
 </x-app-layout>
+
+
+<script>
+$(document).ready(function() {
+    const input = $('#tags');
+    const cloud = $('#tag-cloud');
+
+    // Fetch all tags initially
+    function loadTags(query = '') {
+        $.getJSON('{{ route("tags.autocomplete") }}', { query: query }, function(data) {
+            // Filter matching tags to appear on top
+            let sorted = data.sort((a, b) => {
+                const q = query.toLowerCase();
+                const aMatch = a.name.toLowerCase().includes(q);
+                const bMatch = b.name.toLowerCase().includes(q);
+                return (aMatch === bMatch) ? 0 : aMatch ? -1 : 1;
+            });
+
+            cloud.empty();
+            sorted.forEach(tag => {
+                const tagEl = $(`<span class="cursor-pointer bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-600" data-tag="${tag.name}">${tag.name}</span>`);
+                cloud.append(tagEl);
+            });
+        });
+    }
+
+    // Initial load
+    loadTags();
+
+    // Filter tags on typing
+    input.on('input', function() {
+        let val = $(this).val();
+        let lastPart = val.split(',').pop().trim();
+        loadTags(lastPart);
+    });
+
+    // Clicking a tag adds it to input
+    $(document).on('click', '#tag-cloud span', function() {
+        let tag = $(this).data('tag');
+        let current = input.val().split(',').map(t => t.trim()).filter(t => t !== '');
+        if (!current.includes(tag)) current.push(tag);
+        input.val(current.join(', ') + (current.length ? ', ' : ''));
+        input.focus();
+    });
+});
+</script>

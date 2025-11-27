@@ -15,7 +15,7 @@ class Snippet extends Model
     'code',
     'language',
     'user_id',
-    'tag_names',
+    // 'tag_names',
 ];
 
 public function tags()
