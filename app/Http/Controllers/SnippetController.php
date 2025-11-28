@@ -9,11 +9,106 @@ use App\Models\Tag;
 class SnippetController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $snippets = Snippet::where('user_id', auth()->id())->get();
+        // Base query: all public snippets + user's own snippets
+        $query = Snippet::where(function ($q) {
+            $q->where('is_public', true)
+              ->orWhere('user_id', auth()->id());
+        });
 
-        return view('snippets.index', compact('snippets'));
+        // Search by title or code
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by language
+        if ($request->filled('language')) {
+            $query->where('language', $request->input('language'));
+        }
+
+        // Filter by tag
+        if ($request->filled('tag')) {
+            $query->whereHas('tags', function ($q) {
+                $q->where('name', $request->input('tag'));
+            });
+        }
+
+        // Filter by visibility (only for user's own snippets)
+        if ($request->filled('visibility')) {
+            if ($request->input('visibility') === 'public') {
+                $query->where('is_public', true);
+            } elseif ($request->input('visibility') === 'private') {
+                $query->where([
+                    ['is_public', false],
+                    ['user_id', auth()->id()]
+                ]);
+            }
+        }
+
+        $snippets = $query->with('user', 'tags')->get();
+        
+        // Get all available languages and tags for filter dropdowns
+        $languages = Snippet::where(function ($q) {
+            $q->where('is_public', true)
+              ->orWhere('user_id', auth()->id());
+        })->distinct()->pluck('language')->sort();
+        
+        $tags = Tag::all();
+
+        return view('snippets.index', compact('snippets', 'languages', 'tags'));
+    }
+
+    public function mySnippets(Request $request)
+    {
+        // Base query: only the logged-in user's snippets
+        $query = Snippet::where('user_id', auth()->id());
+
+        // Search by title or code
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by language
+        if ($request->filled('language')) {
+            $query->where('language', $request->input('language'));
+        }
+
+        // Filter by tag
+        if ($request->filled('tag')) {
+            $query->whereHas('tags', function ($q) {
+                $q->where('name', $request->input('tag'));
+            });
+        }
+
+        // Filter by visibility
+        if ($request->filled('visibility')) {
+            if ($request->input('visibility') === 'public') {
+                $query->where('is_public', true);
+            } elseif ($request->input('visibility') === 'private') {
+                $query->where('is_public', false);
+            }
+        }
+
+        $snippets = $query->with('user', 'tags')->get();
+
+        // Get all available languages and tags for filter dropdowns
+        $languages = Snippet::where('user_id', auth()->id())
+            ->distinct()
+            ->pluck('language')
+            ->sort();
+        
+        $tags = Tag::all();
+
+        return view('snippets.my', compact('snippets', 'languages', 'tags'));
     }
 
     public function create()
@@ -29,12 +124,14 @@ public function update(Request $request, Snippet $snippet)
         'language' => 'required|string|max:50',
         'code'     => 'required|string',
         'tags'     => 'nullable|string',
+        'is_public' => 'nullable|boolean',
     ]);
 
     $snippet->update([
         'title'    => $validated['title'],
         'language' => $validated['language'],
         'code'     => $validated['code'],
+        'is_public' => $request->has('is_public'),
     ]);
 
     if (!empty($validated['tags'])) {
@@ -57,7 +154,8 @@ public function store(Request $request)
         'title'    => 'required|string|max:255',
         'language' => 'required|string|max:50',
         'code'     => 'required|string',
-        'tags'     => 'nullable|string', // just a single string input: "php, laravel"
+        'tags'     => 'nullable|string',
+        'is_public' => 'nullable|boolean',
     ]);
 
     $snippet = Snippet::create([
@@ -65,6 +163,7 @@ public function store(Request $request)
         'language' => $validated['language'],
         'code'     => $validated['code'],
         'user_id'  => auth()->id(),
+        'is_public' => $request->has('is_public'),
     ]);
 
     if (!empty($validated['tags'])) {

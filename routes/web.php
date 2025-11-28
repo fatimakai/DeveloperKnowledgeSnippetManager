@@ -21,6 +21,9 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Snippet routes
+    Route::get('/snippets/my', [SnippetController::class, 'mySnippets'])->name('snippets.my');
     Route::resource('snippets', SnippetController::class);
 });
 

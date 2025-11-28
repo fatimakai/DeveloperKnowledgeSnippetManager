@@ -16,8 +16,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('snippets.index')" :active="request()->routeIs('snippets.*')">
-                        {{ __('Snippets') }}
+                    <x-nav-link :href="route('snippets.index')" :active="request()->routeIs('snippets.index')">
+                        {{ __('All Snippets') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('snippets.my')" :active="request()->routeIs('snippets.my')">
+                        {{ __('My Snippets') }}
                     </x-nav-link>
                     <x-nav-link :href="route('snippets.create')" :active="request()->routeIs('snippets.create')">
                         {{ __('Create Snippet') }}
@@ -72,8 +75,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('snippets.index')" :active="request()->routeIs('snippets.*')">
-                {{ __('Snippets') }}
+            <x-responsive-nav-link :href="route('snippets.index')" :active="request()->routeIs('snippets.index')">
+                {{ __('All Snippets') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('snippets.my')" :active="request()->routeIs('snippets.my')">
+                {{ __('My Snippets') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('snippets.create')" :active="request()->routeIs('snippets.create')">
                 {{ __('Create Snippet') }}

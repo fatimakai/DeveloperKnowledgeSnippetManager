@@ -15,6 +15,7 @@ class Snippet extends Model
     'code',
     'language',
     'user_id',
+    'is_public',
     // 'tag_names',
 ];
 
@@ -22,6 +23,11 @@ public function tags()
 {
     return $this->belongsToMany(Tag::class, 'snippet_tag', 'snippet_id', 'tag_id');
     
+}
+
+public function user()
+{
+    return $this->belongsTo(User::class);
 }
 
 

@@ -74,6 +74,20 @@
 
 </div>
 
+            <!-- Visibility Toggle -->
+            <div>
+                <label class="flex items-center gap-3">
+                    <input type="checkbox" name="is_public" id="is_public" value="1" checked
+                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Make this snippet public (visible to all users)
+                    </span>
+                </label>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">
+                    Uncheck to make this snippet private (only visible to you)
+                </p>
+            </div>
+
             <!-- Actions -->
             <div class="flex items-center justify-end gap-3 mt-8">
                 <a href="{{ route('snippets.index') }}"
