@@ -162,8 +162,11 @@
                     @endif
 
                     <!-- Code block -->
-                    <div class="mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                        <pre class="bg-transparent text-gray-800 dark:text-gray-100 rounded-lg p-6 overflow-x-auto text-sm font-mono leading-relaxed">{{ $snippet->code }}</pre>
+                    <div class="mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-700" style="background-color: #282c34;">
+                        <pre class="text-gray-800 dark:text-gray-100 rounded-lg p-6 overflow-x-auto text-sm font-mono leading-relaxed max-h-48 m-0" style="max-height: 12rem; overflow-y: auto; background-color: #282c34;"><code class="language-{{ strtolower($snippet->language) }}">{{ $snippet->code }}</code></pre>
+                    </div>
+                    <div class="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                        {{ count(explode("\n", $snippet->code)) }} lines
                     </div>
 
                     <!-- Action buttons -->
@@ -204,3 +207,12 @@
         @endif
     </div>
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight all code blocks
+        document.querySelectorAll('pre code').forEach(block => {
+            hljs.highlightElement(block);
+        });
+    });
+</script>
