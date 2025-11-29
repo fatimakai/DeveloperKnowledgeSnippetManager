@@ -33,7 +33,7 @@
                             id="search" 
                             name="search" 
                             value="{{ request('search') }}"
-                            placeholder="Title or code..." 
+                            placeholder="Snippet title..." 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                     </div>
@@ -195,5 +195,12 @@
                 </div>
             @endforelse
         </div>
+
+        <!-- Pagination -->
+        @if($snippets->hasPages())
+            <div class="mt-8">
+                {{ $snippets->links() }}
+            </div>
+        @endif
     </div>
 </x-app-layout>

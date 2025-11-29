@@ -17,13 +17,10 @@ class SnippetController extends Controller
               ->orWhere('user_id', auth()->id());
         });
 
-        // Search by title or code
+        // Search by title only (not code - too slow)
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
-            });
+            $query->where('title', 'like', "%{$search}%");
         }
 
         // Filter by language
@@ -50,15 +47,29 @@ class SnippetController extends Controller
             }
         }
 
-        $snippets = $query->with('user', 'tags')->get();
+        // Eager load relationships to avoid N+1 queries
+        $snippets = $query->with('user', 'tags')->paginate(15);
         
-        // Get all available languages and tags for filter dropdowns
+        // Get all available languages for filter dropdowns - only those visible to user
         $languages = Snippet::where(function ($q) {
             $q->where('is_public', true)
               ->orWhere('user_id', auth()->id());
-        })->distinct()->pluck('language')->sort();
+        })
+        ->select('language')
+        ->distinct()
+        ->orderBy('language')
+        ->pluck('language');
         
-        $tags = Tag::all();
+        // Get only tags that are actually used (not all tags)
+        $tags = Tag::whereHas('snippets', function ($q) {
+            $q->where(function ($inner) {
+                $inner->where('is_public', true)
+                      ->orWhere('user_id', auth()->id());
+            });
+        })
+        ->select('id', 'name')
+        ->orderBy('name')
+        ->get();
 
         return view('snippets.index', compact('snippets', 'languages', 'tags'));
     }
@@ -68,13 +79,10 @@ class SnippetController extends Controller
         // Base query: only the logged-in user's snippets
         $query = Snippet::where('user_id', auth()->id());
 
-        // Search by title or code
+        // Search by title only (not code - too slow)
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
-            });
+            $query->where('title', 'like', "%{$search}%");
         }
 
         // Filter by language
@@ -98,15 +106,23 @@ class SnippetController extends Controller
             }
         }
 
-        $snippets = $query->with('user', 'tags')->get();
+        // Eager load relationships and paginate
+        $snippets = $query->with('user', 'tags')->paginate(15);
 
-        // Get all available languages and tags for filter dropdowns
+        // Get all available languages for this user
         $languages = Snippet::where('user_id', auth()->id())
+            ->select('language')
             ->distinct()
-            ->pluck('language')
-            ->sort();
+            ->orderBy('language')
+            ->pluck('language');
         
-        $tags = Tag::all();
+        // Get only tags used by this user
+        $tags = Tag::whereHas('snippets', function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+        ->select('id', 'name')
+        ->orderBy('name')
+        ->get();
 
         return view('snippets.my', compact('snippets', 'languages', 'tags'));
     }
