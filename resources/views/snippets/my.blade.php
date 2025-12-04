@@ -156,6 +156,13 @@
                         </div>
                     @endif
 
+                    <!-- Description -->
+                    @if($snippet->description)
+                        <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                            {{ $snippet->description }}
+                        </div>
+                    @endif
+
                     <!-- Code block -->
                     <div class="mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-700" style="background-color: #282c34;">
                         <pre class="text-gray-800 dark:text-gray-100 rounded-lg p-6 overflow-x-auto text-sm font-mono leading-relaxed max-h-48 m-0" style="max-height: 12rem; overflow-y: auto; background-color: #282c34;"><code class="language-{{ strtolower($snippet->language) }}">{{ $snippet->code }}</code></pre>
@@ -168,7 +175,7 @@
                     <div class="flex space-x-3 mt-3 justify-end items-center">
                         <a href="{{ route('snippets.edit', $snippet) }}"
                            class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded shadow">
-                            ✏️ Edit
+                            Edit
                         </a>
                         <form action="{{ route('snippets.destroy', $snippet) }}" method="POST"
                               onsubmit="return confirm('Are you sure you want to delete this snippet?');">
@@ -176,7 +183,7 @@
                             @method('DELETE')
                             <button type="submit"
                                     class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded shadow">
-                                🗑 Delete
+                                Delete
                             </button>
                         </form>
                     </div>

@@ -14,6 +14,17 @@
                     @csrf
                     @method('PUT')
 
+                    <!-- Display validation errors -->
+                    @if ($errors->any())
+                        <div class="mb-4 p-4 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 rounded">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- centered inner column -->
                     <div class="space-y-6 px-6">
                         <!-- Title -->
@@ -28,6 +39,19 @@
                                           focus:border-blue-500 focus:ring focus:ring-blue-200
                                           focus:ring-opacity-50 p-3"
                                    required>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Description (Optional)
+                            </label>
+                            <textarea name="description" id="description" rows="3"
+                                   class="mt-2 block w-full rounded-md border-gray-300 dark:border-gray-700
+                                          dark:bg-gray-900 dark:text-gray-200 shadow-sm
+                                          focus:border-blue-500 focus:ring focus:ring-blue-200
+                                          focus:ring-opacity-50 p-3"
+                                   placeholder="e.g. Efficient sorting algorithm with explanation...">{{ old('description', $snippet->description) }}</textarea>
                         </div>
 
                         <!-- Language -->

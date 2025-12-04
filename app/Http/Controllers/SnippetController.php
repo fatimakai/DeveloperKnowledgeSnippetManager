@@ -136,18 +136,20 @@ class SnippetController extends Controller
 public function update(Request $request, Snippet $snippet)
 {
     $validated = $request->validate([
-        'title'    => 'required|string|max:255',
-        'language' => 'required|string|max:50',
-        'code'     => 'required|string',
-        'tags'     => 'nullable|string',
-        'is_public' => 'nullable|boolean',
+        'title'       => 'required|string|max:255',
+        'description' => 'nullable|string|max:1000',
+        'language'    => 'required|string|max:50',
+        'code'        => 'required|string',
+        'tags'        => 'nullable|string',
+        'is_public'   => 'nullable|boolean',
     ]);
 
     $snippet->update([
-        'title'    => $validated['title'],
-        'language' => $validated['language'],
-        'code'     => $validated['code'],
-        'is_public' => $request->has('is_public'),
+        'title'       => $validated['title'],
+        'description' => $validated['description'] ?? null,
+        'language'    => $validated['language'],
+        'code'        => $validated['code'],
+        'is_public'   => $request->has('is_public'),
     ]);
 
     if (!empty($validated['tags'])) {
@@ -166,21 +168,29 @@ public function update(Request $request, Snippet $snippet)
 
 public function store(Request $request)
 {
+    \Log::info('Store request data:', $request->all());
+    
     $validated = $request->validate([
-        'title'    => 'required|string|max:255',
-        'language' => 'required|string|max:50',
-        'code'     => 'required|string',
-        'tags'     => 'nullable|string',
-        'is_public' => 'nullable|boolean',
+        'title'       => 'required|string|max:255',
+        'description' => 'nullable|string|max:1000',
+        'language'    => 'required|string|max:50',
+        'code'        => 'required|string',
+        'tags'        => 'nullable|string',
+        'is_public'   => 'nullable|boolean',
     ]);
 
+    \Log::info('Validated data:', $validated);
+
     $snippet = Snippet::create([
-        'title'    => $validated['title'],
-        'language' => $validated['language'],
-        'code'     => $validated['code'],
-        'user_id'  => auth()->id(),
-        'is_public' => $request->has('is_public'),
+        'title'       => $validated['title'],
+        'description' => $validated['description'] ?? null,
+        'language'    => $validated['language'],
+        'code'        => $validated['code'],
+        'user_id'     => auth()->id(),
+        'is_public'   => $request->has('is_public'),
     ]);
+
+    \Log::info('Created snippet:', $snippet->toArray());
 
     if (!empty($validated['tags'])) {
         $tagsArray = array_map('trim', explode(',', $validated['tags']));
