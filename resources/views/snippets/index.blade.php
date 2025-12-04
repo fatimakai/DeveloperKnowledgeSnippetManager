@@ -5,10 +5,12 @@
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('All Snippets') }}
         </h2>
-        <a href="{{ route('snippets.create') }}"
-               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
-                + New Snippet
-        </a>
+        <div class="flex gap-2">
+            <a href="{{ route('snippets.create') }}"
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+                    + New Snippet
+            </a>
+        </div>
         </div>
     </x-slot>
 
@@ -177,7 +179,21 @@
                     </div>
 
                     <!-- Action buttons -->
-                    <div class="flex space-x-3 mt-3 justify-end items-center">
+                    <div class="flex space-x-3 mt-3 justify-end items-center flex-wrap gap-2">
+                        <!-- Export buttons (available to all) -->
+                        <div class="flex space-x-2">
+                            <a href="{{ route('snippets.export.json', $snippet) }}"
+                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded shadow"
+                               title="Download as JSON">
+                                JSON
+                            </a>
+                            <a href="{{ route('snippets.export.pdf', $snippet) }}"
+                               class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded shadow"
+                               title="Download as PDF">
+                                PDF
+                            </a>
+                        </div>
+
                         @if($snippet->user_id === auth()->id())
                             <a href="{{ route('snippets.edit', $snippet) }}"
                                class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded shadow">
