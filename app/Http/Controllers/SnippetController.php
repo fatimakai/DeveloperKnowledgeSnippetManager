@@ -166,67 +166,43 @@ public function update(Request $request, Snippet $snippet)
 }
 
 
-public function store(Request $request)
-{
-    \Log::info('Store request data:', $request->all());
-    
-    $validated = $request->validate([
-        'title'       => 'required|string|max:255',
-        'description' => 'nullable|string|max:1000',
-        'language'    => 'required|string|max:50',
-        'code'        => 'required|string',
-        'tags'        => 'nullable|string',
-        'is_public'   => 'nullable|boolean',
-    ]);
-
-    \Log::info('Validated data:', $validated);
-
-    $snippet = Snippet::create([
-        'title'       => $validated['title'],
-        'description' => $validated['description'] ?? null,
-        'language'    => $validated['language'],
-        'code'        => $validated['code'],
-        'user_id'     => auth()->id(),
-        'is_public'   => $request->has('is_public'),
-    ]);
-
-    \Log::info('Created snippet:', $snippet->toArray());
-
-    if (!empty($validated['tags'])) {
-        $tagsArray = array_map('trim', explode(',', $validated['tags']));
-        $tagIds = collect($tagsArray)->map(function ($tagName) {
-            return Tag::firstOrCreate(['name' => $tagName])->id;
-        });
-        $snippet->tags()->sync($tagIds);
-    }
-
-    return redirect()->route('snippets.index')->with('success', 'Snippet created!');
-}
-
-    public function show($id)
+    public function store(Request $request)
     {
-        return view('snippets.show');
+        $validated = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'language'    => 'required|string|max:50',
+            'code'        => 'required|string',
+            'tags'        => 'nullable|string',
+            'is_public'   => 'nullable|boolean',
+        ]);
+
+        $snippet = Snippet::create([
+            'title'       => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'language'    => $validated['language'],
+            'code'        => $validated['code'],
+            'user_id'     => auth()->id(),
+            'is_public'   => $request->has('is_public'),
+        ]);
+
+        if (!empty($validated['tags'])) {
+            $tagsArray = array_map('trim', explode(',', $validated['tags']));
+            $tagIds = collect($tagsArray)->map(function ($tagName) {
+                return Tag::firstOrCreate(['name' => $tagName])->id;
+            });
+            $snippet->tags()->sync($tagIds);
+        }
+
+        return redirect()->route('snippets.index')->with('success', 'Snippet created!');
     }
 
 public function edit(Snippet $snippet)
-{        $snippet->load('tags');
-
-    // dd($snippet->tags);
-
-
+{
+    $snippet->load('tags');
     return view('snippets.edit', compact('snippet'));
 }
 
-
-
-    /**
-     * Update the specified resource in storage.
-     */
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //
