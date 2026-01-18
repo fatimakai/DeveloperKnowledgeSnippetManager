@@ -75,6 +75,22 @@ export default {
         // Red
         'bg-red-600',
         'hover:bg-red-700',
+        // Gray
+        'bg-gray-600',
+        'hover:bg-gray-700',
+        'bg-gray-700',
+        'hover:bg-gray-800',
+        'bg-gray-800',
+        'hover:bg-gray-900',
+        // Indigo
+        'bg-indigo-500',
+        'hover:bg-indigo-600',
+        // Rose
+        'bg-rose-600',
+        'hover:bg-rose-700',
+        'text-white',
+        'text-sm',
+        'px-3',
         // Other utilities
         'px-2',
         'py-1',

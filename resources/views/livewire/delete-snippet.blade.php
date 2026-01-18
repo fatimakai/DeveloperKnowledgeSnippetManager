@@ -3,8 +3,8 @@
     <button 
         type="button"
         wire:click="openConfirmation"
-        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition">
-        Delete
+        class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1">
+        <i class='bx bxs-trash'></i> Delete
     </button>
 
     <!-- Confirmation Modal -->
