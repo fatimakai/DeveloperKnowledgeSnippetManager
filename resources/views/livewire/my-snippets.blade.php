@@ -17,7 +17,7 @@
                     id="search"
                     wire:model.live="search"
                     placeholder="Snippet title..." 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
             </div>
 
@@ -29,7 +29,7 @@
                 <select 
                     id="language"
                     wire:model.live="language"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">All</option>
                     @foreach($languages as $lang)
@@ -48,7 +48,7 @@
                 <select 
                     id="tag"
                     wire:model.live="tagFilter"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">All</option>
                     @foreach($tags as $tagItem)
@@ -67,7 +67,7 @@
                 <select 
                     id="visibility"
                     wire:model.live="visibility"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">All</option>
                     <option value="public">Public</option>
@@ -98,7 +98,7 @@
                 <!-- Title + Language badge + Visibility -->
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span style="background-color: #e0e7ff; color: #4f46e5; padding: 0.25rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;" class="dark:bg-indigo-900 dark:text-indigo-300">
+                        <span class="text-white font-semibold text-lg">
                             {{ $snippet->title }}
                         </span>
                     </div>
@@ -107,12 +107,12 @@
                             {{ strtoupper($snippet->language) }}
                         </span>
                         @if($snippet->is_public)
-                            <span style="background-color: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;" class="dark:bg-green-900 dark:text-green-300" title="This snippet is public">
-                                🌍 Public
+                            <span title="This snippet is public" style="font-size: 1.5rem; color: #6366f1;">
+                                <i class="material-icons" style="font-size: 1.5rem; vertical-align: middle; color: #6366f1;">public</i>
                             </span>
                         @else
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300" title="This snippet is private">
-                                🔒 Private
+                            <span title="This snippet is private" style="font-size: 1.5rem; color: #6366f1;">
+                                <i class="material-icons" style="font-size: 1.5rem; vertical-align: middle; color: #6366f1;">lock</i>
                             </span>
                         @endif
                     </div>
@@ -124,7 +124,7 @@
                         @foreach($snippet->tags as $tag)
                             <button 
                                 wire:click="$set('tagFilter', '{{ $tag->name }}')"
-                                class="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                                class="px-4 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-white transition"
                             >
                                 #{{ $tag->name }}
                             </button>
@@ -134,7 +134,7 @@
 
                 <!-- Description -->
                 @if($snippet->description)
-                    <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                    <div class="mb-4 p-3 rounded-lg text-sm text-white border border-gray-200 dark:border-gray-700" style="background-color: #282c34;">
                         {{ $snippet->description }}
                     </div>
                 @endif
@@ -148,24 +148,22 @@
                 </div>
 
                 <!-- Action buttons -->
-                <div class="flex space-x-3 mt-3 justify-end items-center flex-wrap gap-2">
-                    <!-- Export buttons -->
-                    <div class="flex space-x-2">
-                        <a href="{{ route('snippets.export.json', $snippet) }}"
-                           class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded shadow"
-                           title="Download as JSON">
-                            📄 JSON
-                        </a>
-                        <a href="{{ route('snippets.export.pdf', $snippet) }}"
-                           class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded shadow"
-                           title="Download as PDF">
-                            📕 PDF
-                        </a>
-                    </div>
+                <div class="flex space-x-2 mt-3 justify-end items-center flex-wrap gap-2">
+                    <!-- Export buttons (available to all) -->
+                    <a href="{{ route('snippets.export.json', $snippet) }}"
+                       class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1"
+                       title="Download as JSON">
+                        <i class="material-icons" style="font-size: 1rem;">code</i> JSON
+                    </a>
+                    <a href="{{ route('snippets.export.pdf', $snippet) }}"
+                       class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1"
+                       title="Download as PDF">
+                        <i class='bx bxs-file-pdf'></i> PDF
+                    </a>
 
                     <a href="{{ route('snippets.edit', $snippet) }}"
-                       class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded shadow">
-                        Edit
+                       class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1">
+                        <i class='bx bxs-edit'></i> Edit
                     </a>
                     @livewire('delete-snippet', ['snippet' => $snippet], key('delete-' . $snippet->id))
                 </div>

@@ -81,49 +81,35 @@ $(document).ready(function() {
         if (query && filtered.length > 0) {
             filtered.forEach(lang => {
                 const li = document.createElement('li');
-                li.className = 'px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer text-gray-700 dark:text-gray-300';
-                li.textContent = lang;
-                li.addEventListener('click', function() {
-                    languageInput.value = lang;
-                    languageDropdown.classList.add('hidden');
-                    updateEditorMode();
+                            li.className = 'px-4 py-2 hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer text-gray-700 dark:text-gray-300';
+                            li.textContent = lang;
+                            li.addEventListener('click', function() {
+                                languageInput.value = lang;
+                                languageDropdown.classList.add('hidden');
+                                updateEditorMode();
+                            });
+                            languageDropdown.appendChild(li);
+                        });
+                        languageDropdown.classList.remove('hidden');
+                    } else {
+                        languageDropdown.classList.add('hidden');
+                    }
                 });
-                languageDropdown.appendChild(li);
-            });
-            languageDropdown.classList.remove('hidden');
-        } else {
-            languageDropdown.classList.add('hidden');
-        }
-    });
-    
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!languageInput.contains(e.target) && !languageDropdown.contains(e.target)) {
-            languageDropdown.classList.add('hidden');
-        }
-    });
-    
-    // Show dropdown on focus
-    languageInput.addEventListener('focus', function() {
-        if (this.value === '') {
-            languageDropdown.innerHTML = '';
-            languages.forEach(lang => {
-                const li = document.createElement('li');
-                li.className = 'px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer text-gray-700 dark:text-gray-300';
-                li.textContent = lang;
-                li.addEventListener('click', function() {
-                    languageInput.value = lang;
-                    languageDropdown.classList.add('hidden');
-                    updateEditorMode();
+                
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!languageInput.contains(e.target) && !languageDropdown.contains(e.target)) {
+                        languageDropdown.classList.add('hidden');
+                    }
                 });
-                languageDropdown.appendChild(li);
-            });
-            languageDropdown.classList.remove('hidden');
-        }
-    });
-
-    // Initialize CodeMirror
-    const codeTextarea = document.getElementById('code');
+                
+                // Show dropdown on focus
+                languageInput.addEventListener('focus', function() {
+                    if (this.value === '') {
+                        languageDropdown.innerHTML = '';
+                        languages.forEach(lang => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer text-gray-700 dark:text-gray-300';
     const editor = CodeMirror(document.getElementById('code-editor'), {
         value: codeTextarea.value,
         mode: 'php',  // Default language

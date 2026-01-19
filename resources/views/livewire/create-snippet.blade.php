@@ -29,7 +29,7 @@
                             type="text" 
                             id="title"
                             wire:model="title"
-                            class="mt-2 block w-full rounded-md border-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3 pr-10 transition
+                            class="mt-2 block w-full rounded-md border-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3 pr-10 transition
                             @php
                                 $status = $this->getFieldStatus('title');
                                 echo $status === 'valid' ? 'border-green-500 bg-green-50 dark:bg-gray-900' : ($status === 'invalid' ? 'border-red-500 bg-red-50 dark:bg-gray-900' : 'border-gray-300');
@@ -65,7 +65,7 @@
                             id="description" 
                             wire:model="description"
                             rows="3"
-                            class="mt-2 block w-full rounded-md border-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3 transition
+                            class="mt-2 block w-full rounded-md border-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3 transition
                             @php
                                 $status = $this->getFieldStatus('description');
                                 echo $status === 'valid' ? 'border-green-500 bg-green-50 dark:bg-gray-900' : ($status === 'invalid' ? 'border-red-500 bg-red-50 dark:bg-gray-900' : 'border-gray-300');
@@ -88,7 +88,7 @@
                         <select 
                             id="language"
                             wire:model="language"
-                            class="mt-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3 relative z-50"
+                            class="mt-2 block w-full rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3 relative z-50"
                             required>
                             <option value="">Select a language...</option>
                             <option value="php">PHP</option>
@@ -169,7 +169,7 @@
                         type="checkbox" 
                         id="isPublic"
                         wire:model="isPublic"
-                        class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-blue-600 focus:ring focus:ring-blue-200">
+                        class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-indigo-600 focus:ring focus:ring-indigo-200">
                     <label for="isPublic" class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                         Make this snippet public
                     </label>
@@ -183,7 +183,7 @@
                     </a>
                     <button 
                         type="submit"
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+                        class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition"
                         wire:loading.attr="disabled"
                         wire:loading.class="opacity-50 cursor-not-allowed">
                         <span wire:loading.remove>Create Snippet</span>
