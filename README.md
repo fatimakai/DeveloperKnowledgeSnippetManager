@@ -32,21 +32,20 @@ It was built to explore complex Livewire-driven UIs, clean backend architecture,
 ## Screenshots
 
 <p float="left">
-  <img src="assets/screenshots/leaderboard.png" height="180" />
-  <img src="assets/screenshots/allsnippets.png" height="180" />
+  <img src="assets/screenshots/leaderboard.png" height="200" />
+  <img src="assets/screenshots/allsnippets.png" height="200" />
+   <img src="assets/screenshots/my.png" height="200" />
+
 </p>
 <p float="left">
-  <img src="assets/screenshots/profile.png" width="45%" />
-  <img src="assets/screenshots/my.png" width="45%" />
+  <img src="assets/screenshots/profile.png" height="200" />
+  <img src="assets/screenshots/create.png" height="200" />
+  <img src="assets/screenshots/edit.png" height="200" />
 </p>
 <p float="left">
-  <img src="assets/screenshots/create.png" width="45%" />
-  <img src="assets/screenshots/edit.png" width="45%" />
-</p>
-<p float="left">
-  <img src="assets/screenshots/welcome.png" width="45%" />
-  <img src="assets/screenshots/register.png" width="45%" />
-  <img src="assets/screenshots/login.png" width="45%" />
+  <img src="assets/screenshots/welcome.png" height="200" />
+  <img src="assets/screenshots/register.png" height="200" />
+  <img src="assets/screenshots/login.png" height="200" />
 </p>
 
 # Project Structure
