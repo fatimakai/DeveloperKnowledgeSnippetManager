@@ -33,16 +33,16 @@ It was built to explore complex Livewire-driven UIs, clean backend architecture,
 
 ## Screenshots
 
-![Dashboard](assets/screenshots/allsnippets.png)
-![Snippet Editor](assets/screenshots/my.png)
+![Dashboard](asset/images/screenshots/allsnippets.png)
+![Snippet Editor](asset/images/screenshots/my.png)
 
 
-<img src="assets/screenshots/allsnippets.png" width="600" />
-<img src="assets/screenshots/my.png" width="600" />
+<img src="asset/images/screenshots/allsnippets.png" width="600" />
+<img src="asset/images/screenshots/my.png" width="600" />
 
 <p float="left">
-  <img src="assets/screenshots/allsnippets.png" width="45%" />
-  <img src="assets/screenshots/my.png" width="45%" />
+  <img src="asset/images/screenshots/allsnippets.png" width="45%" />
+  <img src="asset/images/screenshots/my.png" width="45%" />
 </p>
 
 
