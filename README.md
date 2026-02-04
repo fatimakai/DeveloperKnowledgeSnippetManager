@@ -128,6 +128,123 @@ All features require authentication. Authorization checks:
 - Private snippets are visible only to their owner
 - Any authenticated user can create tags
 
+# API Endpoints
+
+The application provides a RESTful API with token-based authentication (Laravel Sanctum).
+
+## Authentication Endpoints
+
+### Login
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "message": "Login successful",
+  "token": "1|abcdef...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "user@example.com"
+  }
+}
+```
+
+### Logout
+```http
+POST /api/logout
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+## Authenticated Endpoints
+
+All endpoints below require `Authorization: Bearer <token>` header.
+
+### List User's Snippets
+```http
+GET /api/snippets
+```
+
+### Get Snippet Details
+```http
+GET /api/snippets/{id}
+```
+
+### Create Snippet
+```http
+POST /api/snippets
+Content-Type: application/json
+
+{
+  "title": "Example Snippet",
+  "language": "php",
+  "code": "<?php echo 'Hello'; ?>",
+  "is_public": true
+}
+```
+
+### Update Snippet
+```http
+PUT /api/snippets/{id}
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "language": "php",
+  "code": "<?php echo 'Updated'; ?>",
+  "is_public": true
+}
+```
+
+### Delete Snippet
+```http
+DELETE /api/snippets/{id}
+```
+
+## Public Endpoints
+
+These endpoints do not require authentication.
+
+### List Public Snippets
+```http
+GET /api/public/snippets
+```
+
+### Get Public Snippet by Slug
+```http
+GET /api/public/snippets/{slug}
+```
+
+## API Testing
+
+The project includes comprehensive API tests in `tests/Feature/AuthApiTest.php` and `tests/Feature/SnippetApiTest.php`.
+
+Run API tests:
+```bash
+php artisan test tests/Feature/AuthApiTest.php
+php artisan test tests/Feature/SnippetApiTest.php
+```
+
+Or run all tests:
+```bash
+php artisan test
+```
+
 # Database Schema
 
 ## snippets table
