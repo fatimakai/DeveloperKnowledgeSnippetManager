@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Snippet;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Snippet>
@@ -42,6 +43,7 @@ class SnippetFactory extends Factory
             'language' => $language,
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'is_public' => $this->faker->boolean(70),
+            'slug' => Str::slug($this->faker->sentence(3)) . '-' . $this->faker->unique()->numberBetween(1000, 9999),
         ];
     }
 }
