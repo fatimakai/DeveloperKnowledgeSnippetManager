@@ -4,7 +4,7 @@
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg w-[95%] mx-auto px-8 py-12">
             <form wire:submit="save" class="space-y-6">
                 <!-- Display validation errors -->
-                @if (count($errors) > 0)
+                @if ($errors->any())
                     <div class="mb-4 p-4 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 rounded">
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -43,11 +43,9 @@
                             <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500">✕</span>
                         @endif
                     </div>
-                    @if(is_array($errors) && isset($errors['title']))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors['title'] }}</p>
-                    @elseif(!is_array($errors) && $errors->has('title'))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors->first('title') }}</p>
-                    @endif
+                    @error('title')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Description -->
@@ -72,11 +70,9 @@
                             @endphp"
                             placeholder="e.g. Efficient sorting algorithm with explanation..."></textarea>
                     </div>
-                    @if(is_array($errors) && isset($errors['description']))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors['description'] }}</p>
-                    @elseif(!is_array($errors) && $errors->has('description'))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors->first('description') }}</p>
-                    @endif
+                    @error('description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Language -->
@@ -123,11 +119,9 @@
                             <option value="graphql">GraphQL</option>
                         </select>
                     </div>
-                    @if(is_array($errors) && isset($errors['language']))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors['language'] }}</p>
-                    @elseif(!is_array($errors) && $errors->has('language'))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors->first('language') }}</p>
-                    @endif
+                    @error('language')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Code Editor with CodeMirror -->
@@ -153,11 +147,9 @@
                         @endphp"
                         rows="15" 
                         required></textarea>
-                    @if(is_array($errors) && isset($errors['code']))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors['code'] }}</p>
-                    @elseif(!is_array($errors) && $errors->has('code'))
-                        <p class="text-red-500 text-sm mt-1">{{ $errors->first('code') }}</p>
-                    @endif
+                    @error('code')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Tags Input - Using TagAutocomplete Component -->

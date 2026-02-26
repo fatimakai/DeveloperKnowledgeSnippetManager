@@ -15,8 +15,6 @@ class CreateSnippet extends Component
     public $language = 'php';
     public $tags = '';
     public $isPublic = false;
-
-    public $errors = [];
     
     // Validation state tracking
     public $validatedFields = [];

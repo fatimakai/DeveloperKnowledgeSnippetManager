@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Snippet; 
+use App\Models\SavedSnippet;
 use Illuminate\Http\Request;
 use App\Models\Tag;
 
@@ -125,6 +126,63 @@ class SnippetController extends Controller
         ->get();
 
         return view('snippets.my', compact('snippets', 'languages', 'tags'));
+    }
+
+    public function savedSnippets(Request $request)
+    {
+        // Get saved snippets for the logged-in user
+        $query = SavedSnippet::where('user_id', auth()->id())
+            ->with('snippet.user', 'snippet.tags');
+
+        // Filter by search
+        if ($request->filled('search')) {
+            $query->whereHas('snippet', function ($q) {
+                $q->where('title', 'like', '%' . $request->input('search') . '%');
+            });
+        }
+
+        // Filter by language
+        if ($request->filled('language')) {
+            $query->whereHas('snippet', function ($q) {
+                $q->where('language', $request->input('language'));
+            });
+        }
+
+        // Filter by tag
+        if ($request->filled('tag')) {
+            $query->whereHas('snippet.tags', function ($q) {
+                $q->where('name', $request->input('tag'));
+            });
+        }
+
+        // Eager load and paginate
+        $saved = $query->latest()->paginate(15);
+
+        // Extract the snippets for the view
+        $snippets = $saved->map(function ($item) {
+            return $item->snippet;
+        });
+
+        // Get all available languages from saved snippets
+        $languages = SavedSnippet::where('user_id', auth()->id())
+            ->with('snippet')
+            ->get()
+            ->map(function ($item) {
+                return $item->snippet->language;
+            })
+            ->unique()
+            ->sort()
+            ->values();
+
+        // Get all available tags from saved snippets
+        $tags = Tag::whereHas('snippets.savedSnippets', function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+        ->select('id', 'name')
+        ->orderBy('name')
+        ->get();
+
+        return view('snippets.saved', compact('snippets', 'languages', 'tags', 'saved'));
     }
 
     public function create()

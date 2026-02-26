@@ -13,7 +13,15 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    // Get top contributors ranked by number of public snippets
+    $topContributors = \App\Models\User::withCount(['snippets' => function ($query) {
+        $query->where('is_public', true);
+    }])
+    ->orderByDesc('snippets_count')
+    ->limit(5)
+    ->get();
+    
+    return view('dashboard', ['topContributors' => $topContributors]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -32,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/snippets/{snippet}/export-pdf', [ExportController::class, 'exportSnippetPdf'])->name('snippets.export.pdf');
     
     // Snippet routes
+    Route::get('/snippets/saved', [SnippetController::class, 'savedSnippets'])->name('snippets.saved');
     Route::get('/snippets/my', [SnippetController::class, 'mySnippets'])->name('snippets.my');
     Route::resource('snippets', SnippetController::class);
 });

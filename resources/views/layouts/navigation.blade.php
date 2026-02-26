@@ -19,6 +19,9 @@
                     <x-nav-link :href="route('snippets.index')" :active="request()->routeIs('snippets.index')">
                         {{ __('All Snippets') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('snippets.saved')" :active="request()->routeIs('snippets.saved')">
+                        {{ __('Saved Snippets') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('snippets.my')" :active="request()->routeIs('snippets.my')">
                         {{ __('My Snippets') }}
                     </x-nav-link>
@@ -77,6 +80,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('snippets.index')" :active="request()->routeIs('snippets.index')">
                 {{ __('All Snippets') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('snippets.saved')" :active="request()->routeIs('snippets.saved')">
+                {{ __('Saved Snippets') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('snippets.my')" :active="request()->routeIs('snippets.my')">
                 {{ __('My Snippets') }}

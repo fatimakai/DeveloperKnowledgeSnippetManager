@@ -7,23 +7,24 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Welcome Section -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("Welcome Back!") }}
-                </div>
-            </div>
-
-            <!-- Snippets Leaderboard -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
-                        Leaderboard
-                    </h3>
+            <!-- Two Column Layout: Snippets (Left) and Contributors (Right) -->
+            <div class="grid grid-cols-2 gap-8">
+                
+                <!-- Left Column: Snippets Leaderboard -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                            Top Snippets
+                        </h3>
                     
                     <div class="grid gap-6">
                         @php
-                            $snippets = \App\Models\Snippet::inRandomOrder()->limit(5)->get();
+                            $snippets = \App\Models\Snippet::where('is_public', true)
+                                ->withCount('likes')
+                                ->orderByDesc('likes_count')
+                                ->orderByDesc('created_at')
+                                ->limit(5)
+                                ->get();
                         @endphp
 
                         @forelse($snippets as $index => $snippet)
@@ -92,16 +93,21 @@
                                         </div>
                                     @endif
 
-                                    <!-- Author and Stats -->
-                                    <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                                    <!-- Author, Likes and Stats -->
+                                    <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 flex-wrap">
                                         <span>By {{ $snippet->user->name }}</span>
+                                        <span title="Number of likes" class="flex items-center gap-1">
+                                            <i class="material-icons" style="font-size: 0.875rem;">favorite</i>
+                                            {{ $snippet->likes->count() }}
+                                        </span>
                                         <span>{{ count(explode("\n", $snippet->code)) }} lines</span>
                                         <span>{{ $snippet->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
 
                                 <!-- Action Button -->
-                                <div class="flex-shrink-0">
+                                <div class="flex-shrink-0 flex gap-2">
+                                    @livewire('save-snippet', ['snippet' => $snippet], key('save-' . $snippet->id))
                                     <a href="{{ route('snippets.edit', $snippet) }}"
                                        class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow transition flex items-center gap-1">
                                         View
@@ -114,15 +120,68 @@
                             </div>
                         @endforelse
                     </div>
-
-                    <!-- View All Button -->
-                    <div class="mt-6 text-center">
-                        <a href="{{ route('snippets.index') }}"
-                           class="inline-block px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-lg shadow transition">
-                            View All Snippets
-                        </a>
                     </div>
                 </div>
+
+                <!-- Right Column: Top Contributors Leaderboard -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
+                            Top Contributors
+                        </h3>
+                        
+                        <div class="grid gap-4">
+                            @forelse($topContributors as $index => $contributor)
+                                <div class="flex items-center gap-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition">
+                                    <!-- Rank Badge -->
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            style="
+                                                width: 30px;
+                                                height: 30px;
+                                                border-radius: 9999px;
+                                                background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                color: white;
+                                                font-weight: 700;
+                                                font-size: 14px;
+                                            "
+                                        >
+                                            {{ $index + 1 }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Contributor Info -->
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                            {{ $contributor->name }}
+                                        </h4>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">
+                                            {{ $contributor->email }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Snippet Count -->
+                                    <div class="flex-shrink-0 text-center">
+                                        <div class="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                            {{ $contributor->snippets_count }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            public snippet{{ $contributor->snippets_count !== 1 ? 's' : '' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-10 text-gray-500 dark:text-gray-400">
+                                    <p>No contributors yet.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

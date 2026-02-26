@@ -75,6 +75,21 @@
                 </select>
             </div>
 
+            <!-- Sort By -->
+            <div class="flex-1 min-w-0">
+                <label for="sortBy" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Sort By
+                </label>
+                <select 
+                    id="sortBy"
+                    wire:model.live="sortBy"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                    <option value="recent">Most Recent</option>
+                    <option value="likes">Most Liked</option>
+                </select>
+            </div>
+
             <!-- Action Buttons -->
             <div class="flex gap-2 flex-shrink-0">
                 <button 
@@ -149,19 +164,24 @@
 
                 <!-- Action buttons -->
                 <div class="flex space-x-2 mt-3 justify-end items-center flex-wrap gap-2">
+                    <!-- Like button -->
+                    @if($snippet->is_public)
+                        @livewire('like-snippet', ['snippet' => $snippet], key('like-' . $snippet->id))
+                    @endif
+
                     <!-- Export buttons (available to all) -->
-                    <a href="{{ route('snippets.export.json', $snippet) }}"
+                    <a href="{{ route('snippets.export.json', [$snippet]) }}"
                        class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1"
                        title="Download as JSON">
                         <i class="material-icons" style="font-size: 1rem;">code</i> JSON
                     </a>
-                    <a href="{{ route('snippets.export.pdf', $snippet) }}"
+                    <a href="{{ route('snippets.export.pdf', [$snippet]) }}"
                        class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1"
                        title="Download as PDF">
                         <i class='bx bxs-file-pdf'></i> PDF
                     </a>
 
-                    <a href="{{ route('snippets.edit', $snippet) }}"
+                    <a href="{{ route('snippets.edit', [$snippet]) }}"
                        class="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded shadow flex items-center gap-1">
                         <i class='bx bxs-edit'></i> Edit
                     </a>

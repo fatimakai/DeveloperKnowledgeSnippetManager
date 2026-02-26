@@ -15,11 +15,12 @@ class MySnippets extends Component
     public $language = '';
     public $tagFilter = '';
     public $visibility = '';
+    public $sortBy = 'likes'; // 'recent' or 'likes'
 
     public function updated($property)
     {
         // Reset to first page when any filter changes
-        if (in_array($property, ['search', 'language', 'tagFilter', 'visibility'])) {
+        if (in_array($property, ['search', 'language', 'tagFilter', 'visibility', 'sortBy'])) {
             $this->resetPage();
         }
     }
@@ -55,6 +56,15 @@ class MySnippets extends Component
             }
         }
 
+        // Sort by likes or recent
+        if ($this->sortBy === 'likes') {
+            $query->withCount('likes')
+                  ->orderByDesc('likes_count')
+                  ->orderByDesc('created_at');
+        } else {
+            $query->orderByDesc('created_at');
+        }
+
         return $query->with('user', 'tags')->paginate(15);
     }
 
@@ -83,6 +93,7 @@ class MySnippets extends Component
         $this->language = '';
         $this->tagFilter = '';
         $this->visibility = '';
+        $this->sortBy = 'likes';
         $this->resetPage();
     }
 

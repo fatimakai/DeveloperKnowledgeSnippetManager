@@ -46,4 +46,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the snippets created by this user.
+     */
+    public function snippets()
+    {
+        return $this->hasMany(Snippet::class);
+    }
+
+    /**
+     * Get the likes made by this user.
+     */
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    /**
+     * Get the snippets saved by this user.
+     */
+    public function savedSnippets()
+    {
+        return $this->hasMany(SavedSnippet::class);
+    }
 }

@@ -18,6 +18,7 @@ It was built to explore complex Livewire-driven UIs, clean backend architecture,
 - Smart Tagging – Autocomplete-based tag system for easy categorization
 - Advanced Filtering – Search by title, language, tags, and visibility
 - Public / Private Control – Share snippets publicly or keep them private
+- Like/Upvote System – Like public snippets and discover the most popular ones
 - Export Options – Download snippets as JSON or PDF
 
 ## Technical Highlights
@@ -120,13 +121,93 @@ resources/views/
    - Authorization verification
    - Dark mode compatible UI
 
-# Authorization
+7. **LikeSnippet**
+   - Like/upvote button for public snippets
+   - Displays total likes count
+   - Toggle like/unlike with visual feedback
+   - Only authenticated users can like snippets
+   - Each user can like a snippet only once
+   - Real-time update of like status
+
+8. **SaveSnippet**
+   - Save/bookmark button for public snippets
+   - Toggle save/unsave with a single click
+   - Visual bookmark icon with saved state
+   - Only authenticated users can save snippets
+   - Each user can save a snippet only once
+   - Saved snippets accessible on dedicated page
+
+# Like System
+
+The application includes a comprehensive like/upvote system for public snippets:
+
+- **Like Public Snippets** – Authenticated users can like publicly shared snippets to show appreciation
+- **One Like Per User** – Database constraint ensures each user can like a snippet only once
+- **Like Count Display** – Each snippet displays the total number of likes
+- **Like-Based Sorting** – Snippets can be sorted by most liked to discover popular code
+- **Visual Feedback** – Like button changes appearance when liked (filled heart icon and red color)
+
+## Like Features
+
+- Toggle like/unlike with a single click
+- Like count updates in real-time
+- Like button only appears on public snippets
+- Unlike reverts the like with one more click
+- Dashboard view includes "Most Liked" sorting option for both public and personal snippets
+
+# Dashboard
+
+The dashboard provides a comprehensive overview and quick access to key information:
+
+## Two-Column Layout
+
+- **Left Column: Top Snippets** – Displays the 5 most-liked public snippets ranked by likes
+  - Ranked with badge numbers (1-5)
+  - Shows title, language, tags, and description
+  - Displays author, like count, lines of code, and creation date
+  - Quick save and view buttons for each snippet
+  
+- **Right Column: Top Contributors** – Shows the 5 most active contributors
+  - Ranked by number of public snippets created
+  - Displays contributor name and email
+  - Shows count of public snippets contributed
+
+## Dashboard Features
+
+- Real-time ranking based on likes and contributions
+- Responsive two-column layout (single column on mobile)
+- Quick access to popular content and top community members
+- Save button to bookmark interesting snippets directly from dashboard
+
+# Saved Snippets
+
+Users can save and bookmark public snippets for quick access later:
+
+## Save Functionality
+
+- **Save Button** – Appears on all public snippets with a bookmark icon
+- **Visual Feedback** – Icon fills when saved, shows "Saved" text
+- **Dedicated Page** – View all saved snippets on the "Saved Snippets" tab
+- **Full Features** – Like, export, and view saved snippets
+- **Private Collection** – Each user's saved snippets are completely private
+- **One Save Per Snippet** – Database constraint ensures each user can only save a snippet once
+
+## Save Features
+
+- Toggle save/unsave with a single click
+- Saved snippets appear in chronological order (newest first)
+- Full snippet details including code, tags, and description
+- Export saved snippets as JSON or PDF
+- Combined view with both saved and liked snippets in convenient location
+
+
 
 All features require authentication. Authorization checks:
 - Users can edit and delete only their own snippets
 - Public snippets are visible to all authenticated users
 - Private snippets are visible only to their owner
 - Any authenticated user can create tags
+- Any authenticated user can like public snippets
 
 # API Endpoints
 
