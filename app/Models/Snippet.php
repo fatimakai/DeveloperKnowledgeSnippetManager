@@ -72,4 +72,9 @@ public function savedByUser($userId = null)
 
     return $this->savedSnippets()->where('user_id', $userId)->exists();
 }
+
+public function explanation()
+{
+    return $this->hasOne(SnippetExplanation::class);
+}
 }

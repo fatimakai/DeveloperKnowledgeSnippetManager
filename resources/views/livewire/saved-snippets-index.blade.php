@@ -131,6 +131,9 @@
                     {{ count(explode("\n", $saved->snippet->code)) }} lines
                 </div>
 
+                <!-- Explain Snippet Component -->
+                @livewire('explain-snippet', ['snippet' => $saved->snippet], key('explain-saved-' . $saved->snippet->id))
+
                 <!-- Action buttons -->
                 <div class="flex space-x-2 mt-3 justify-end items-center flex-wrap gap-2">
                     <!-- Save and Like buttons -->
