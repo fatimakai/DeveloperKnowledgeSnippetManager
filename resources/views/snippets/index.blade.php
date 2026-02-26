@@ -4,9 +4,17 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('All Snippets') }}
             </h2>
-            <a href="{{ route('snippets.create') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow">
-                + New Snippet
-            </a>
+            <div class="flex gap-2">
+                <a href="{{ route('snippets.create') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow">
+                    + New Snippet
+                </a>
+                <a href="{{ route('snippets.export.all.json') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow">
+                    Export All JSON
+                </a>
+                <a href="{{ route('snippets.export.all.pdf') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow">
+                    Export All PDF
+                </a>
+            </div>
         </div>
     </x-slot>
 
