@@ -6,10 +6,10 @@ use App\Exceptions\OAuthLoginException;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendWelcomeEmailJob;
 use App\Services\OAuthAccountService;
+use App\Services\TwoFactorLoginService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
@@ -26,8 +26,12 @@ class OAuthController extends Controller
         return Socialite::driver($provider)->redirect();
     }
 
-    public function callback(Request $request, string $provider, OAuthAccountService $accounts): RedirectResponse
-    {
+    public function callback(
+        Request $request,
+        string $provider,
+        OAuthAccountService $accounts,
+        TwoFactorLoginService $login,
+    ): RedirectResponse {
         $this->ensureSupported($provider);
 
         if (! $this->configured($provider)) {
@@ -49,10 +53,7 @@ class OAuthController extends Controller
             SendWelcomeEmailJob::dispatch($user);
         }
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        return $login->login($request, $user);
     }
 
     private function ensureSupported(string $provider): void

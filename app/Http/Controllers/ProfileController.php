@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\TwoFactorAuthenticationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,10 +15,13 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request, TwoFactorAuthenticationService $twoFactor): View
     {
         return view('profile.edit', [
             'user' => $request->user(),
+            'twoFactorQrCode' => $request->user()->two_factor_secret && ! $request->user()->twoFactorEnabled()
+                ? $twoFactor->qrCodeDataUri($request->user())
+                : null,
         ]);
     }
 

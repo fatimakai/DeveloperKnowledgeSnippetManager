@@ -10,6 +10,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Immutable version history with field-by-field comparison and safe restore
 - Queued OpenRouter prompt analysis with intent, weaknesses, and an improved before/after prompt
 - Google and GitHub OAuth sign-up/login with secure provider-account linking
+- Authenticator-app two-factor authentication with one-time recovery codes
 - Community upvotes and personal bookmarks
 - Secure owner-only editing and deletion
 - Individual and account-wide JSON exports
@@ -17,7 +18,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-Shared collections, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
+Shared collections, RBAC, and sandbox subscriptions are planned in later phases.
 
 ## Stack
 
@@ -51,6 +52,8 @@ To enable AI analysis, set `OPENROUTER_API_KEY` and optionally `OPENROUTER_MODEL
 
 To enable social login, create OAuth applications with Google and GitHub, then set their client IDs, client secrets, and callback URLs from `.env.example`. The local callbacks are `${APP_URL}/auth/google/callback` and `${APP_URL}/auth/github/callback`.
 
+Two-factor authentication can be enabled from the profile page. Secrets and hashed recovery codes are encrypted at rest. The default login challenge expires after five minutes and allows five failed attempts per minute; both limits are configurable in `.env.example`.
+
 ## Tests
 
 ```bash
@@ -73,7 +76,7 @@ The test environment uses an in-memory SQLite database and does not require Dock
 
 ## API routes
 
-Authentication uses bearer tokens returned by `POST /api/login`.
+Authentication uses bearer tokens returned by `POST /api/login`. Accounts with two-factor authentication enabled must also send `two_factor_code`; either a current six-digit TOTP or an unused recovery code is accepted.
 
 - `GET /api/public/prompts`
 - `GET /api/public/prompts/{slug}`

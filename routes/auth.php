@@ -9,10 +9,18 @@ use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
+    Route::get('two-factor-challenge', [TwoFactorChallengeController::class, 'create'])
+        ->name('two-factor.challenge');
+    Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])
+        ->name('two-factor.challenge.store');
+    Route::delete('two-factor-challenge', [TwoFactorChallengeController::class, 'destroy'])
+        ->name('two-factor.challenge.cancel');
+
     Route::get('auth/{provider}/redirect', [OAuthController::class, 'redirect'])
         ->whereIn('provider', ['google', 'github'])
         ->middleware('throttle:20,1')

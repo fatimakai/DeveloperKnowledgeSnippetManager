@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromptController;
 use App\Http\Controllers\PromptExportController;
 use App\Http\Controllers\PromptVersionController;
+use App\Http\Controllers\TwoFactorAuthenticationController;
 use App\Models\Prompt;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/two-factor', [TwoFactorAuthenticationController::class, 'store'])->name('two-factor.store');
+    Route::post('/two-factor/confirm', [TwoFactorAuthenticationController::class, 'confirm'])->name('two-factor.confirm');
+    Route::post('/two-factor/recovery-codes', [TwoFactorAuthenticationController::class, 'recoveryCodes'])->name('two-factor.recovery-codes');
+    Route::delete('/two-factor', [TwoFactorAuthenticationController::class, 'destroy'])->name('two-factor.destroy');
 });
 
 Route::get('/prompts/{prompt:slug}', [PromptController::class, 'show'])->name('prompts.show');

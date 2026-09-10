@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\TwoFactorAuthenticationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthApiController extends Controller
 {
-    public function login(Request $request)
+    public function login(Request $request, TwoFactorAuthenticationService $twoFactor)
     {
         $request->validate([
             'email' => 'required|email',
@@ -23,6 +24,18 @@ class AuthApiController extends Controller
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
+        }
+
+        if ($user->twoFactorEnabled()) {
+            $request->validate([
+                'two_factor_code' => ['required', 'string', 'max:32'],
+            ]);
+
+            if (! $twoFactor->verify($user, $request->string('two_factor_code')->toString())) {
+                throw ValidationException::withMessages([
+                    'two_factor_code' => ['The authentication code is invalid or has already been used.'],
+                ]);
+            }
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
