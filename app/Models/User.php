@@ -62,4 +62,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Bookmark::class);
     }
+
+    public function promptVersions()
+    {
+        return $this->hasMany(PromptVersion::class, 'created_by');
+    }
 }

@@ -14,7 +14,7 @@ class PublicPromptApiController extends Controller
             Prompt::query()
                 ->where('visibility', Prompt::VISIBILITY_PUBLIC)
                 ->with(['user', 'tags'])
-                ->withCount('upvotes')
+                ->withCount(['upvotes', 'versions'])
                 ->latest()
                 ->paginate(15)
         );
@@ -24,6 +24,6 @@ class PublicPromptApiController extends Controller
     {
         abort_unless($prompt->isPublic(), 404);
 
-        return new PromptApiResource($prompt->load(['user', 'tags'])->loadCount('upvotes'));
+        return new PromptApiResource($prompt->load(['user', 'tags'])->loadCount(['upvotes', 'versions']));
     }
 }

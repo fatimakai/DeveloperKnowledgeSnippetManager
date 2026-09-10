@@ -74,6 +74,11 @@ class Prompt extends Model
         return $this->hasMany(PromptAnalysis::class);
     }
 
+    public function versions(): HasMany
+    {
+        return $this->hasMany(PromptVersion::class);
+    }
+
     public function isPublic(): bool
     {
         return $this->visibility === self::VISIBILITY_PUBLIC;

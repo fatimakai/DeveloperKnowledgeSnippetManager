@@ -13,7 +13,7 @@ class PromptExportController extends Controller
     {
         Gate::authorize('view', $prompt);
 
-        return response()->json($this->format($prompt->load('tags')))
+        return response()->json($this->format($prompt->load('tags')->loadCount('versions')))
             ->header('Content-Disposition', 'attachment; filename="prompt-'.$prompt->slug.'.json"');
     }
 
@@ -26,6 +26,7 @@ class PromptExportController extends Controller
                 Prompt::query()
                     ->where('user_id', auth()->id())
                     ->with('tags')
+                    ->withCount('versions')
                     ->latest()
                     ->get()
                     ->map(fn (Prompt $prompt) => $this->format($prompt)),
@@ -44,6 +45,7 @@ class PromptExportController extends Controller
             'example_input' => $prompt->example_input,
             'example_output' => $prompt->example_output,
             'visibility' => $prompt->visibility,
+            'version' => $prompt->versions_count,
             'tags' => $prompt->tags->pluck('name')->values(),
             'created_at' => $prompt->created_at?->toIso8601String(),
             'updated_at' => $prompt->updated_at?->toIso8601String(),

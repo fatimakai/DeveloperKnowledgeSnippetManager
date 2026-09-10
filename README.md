@@ -7,6 +7,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Public prompt discovery and private personal prompts
 - Prompt text, target model, description, example input, and example output
 - Tags, full prompt search, filters, and popularity/recent sorting
+- Immutable version history with field-by-field comparison and safe restore
 - Community upvotes and personal bookmarks
 - Secure owner-only editing and deletion
 - Individual and account-wide JSON exports
@@ -14,7 +15,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-Structured AI analysis, version history, shared collections, OAuth, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
+Structured AI analysis, shared collections, OAuth, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
 
 ## Stack
 
@@ -58,6 +59,7 @@ The test environment uses an in-memory SQLite database and does not require Dock
 - `/` - landing page
 - `/prompts` - public prompt discovery
 - `/prompts/{slug}` - authorized prompt detail
+- `/prompts/{slug}/history` - owner-only version timeline and comparison
 - `/dashboard` - rankings
 - `/prompts/mine` - personal library
 - `/prompts/bookmarked` - bookmarks

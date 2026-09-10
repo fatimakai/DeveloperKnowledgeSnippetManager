@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromptController;
 use App\Http\Controllers\PromptExportController;
+use App\Http\Controllers\PromptVersionController;
 use App\Models\Prompt;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/prompts/bookmarked', [PromptController::class, 'bookmarked'])->name('prompts.bookmarked');
     Route::get('/prompts/create', [PromptController::class, 'create'])->name('prompts.create');
     Route::get('/prompts/{prompt:slug}/edit', [PromptController::class, 'edit'])->name('prompts.edit');
+    Route::get('/prompts/{prompt:slug}/history', [PromptVersionController::class, 'index'])->name('prompts.history.index');
+    Route::get('/prompts/{prompt:slug}/history/{version}', [PromptVersionController::class, 'show'])->name('prompts.history.show');
+    Route::post('/prompts/{prompt:slug}/history/{version}/restore', [PromptVersionController::class, 'restore'])->name('prompts.history.restore');
     Route::get('/exports/prompts.json', [PromptExportController::class, 'all'])->name('prompts.export.all');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Prompt;
 use App\Models\Tag;
+use App\Services\PromptVersionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -73,6 +74,7 @@ class EditPrompt extends Component
                 'visibility' => $data['visibility'],
             ]);
             $this->prompt->tags()->sync($this->tagIds());
+            app(PromptVersionService::class)->record($this->prompt, auth()->user());
         });
 
         session()->flash('success', 'Prompt updated.');

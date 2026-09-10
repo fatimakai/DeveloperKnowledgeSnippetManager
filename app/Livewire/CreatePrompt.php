@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Prompt;
 use App\Models\Tag;
+use App\Services\PromptVersionService;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -55,6 +56,7 @@ class CreatePrompt extends Component
                 'visibility' => $data['visibility'],
             ]);
             $prompt->tags()->sync($this->tagIds());
+            app(PromptVersionService::class)->record($prompt, auth()->user());
         });
 
         session()->flash('success', 'Prompt created.');

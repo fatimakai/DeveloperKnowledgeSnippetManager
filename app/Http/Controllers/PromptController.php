@@ -31,7 +31,7 @@ class PromptController extends Controller
     public function show(Prompt $prompt): View
     {
         Gate::authorize('view', $prompt);
-        $prompt->load(['user', 'tags'])->loadCount('upvotes');
+        $prompt->load(['user', 'tags'])->loadCount(['upvotes', 'versions']);
 
         return view('prompts.show', compact('prompt'));
     }

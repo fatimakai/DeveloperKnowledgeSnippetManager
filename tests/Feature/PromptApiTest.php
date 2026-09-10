@@ -23,9 +23,12 @@ class PromptApiTest extends TestCase
             'target_model' => 'GPT-4.1',
             'visibility' => 'private',
             'tags' => ['research', 'summary'],
-        ])->assertCreated()->assertJsonPath('data.visibility', 'private');
+        ])->assertCreated()
+            ->assertJsonPath('data.visibility', 'private')
+            ->assertJsonPath('data.current_version', 1);
 
         $slug = $created->json('data.slug');
+        $this->assertDatabaseHas('prompt_versions', ['version_number' => 1, 'title' => 'Customer interview synthesis']);
         $this->getJson('/api/prompts/'.$slug)->assertOk()->assertJsonPath('data.title', 'Customer interview synthesis');
 
         $this->putJson('/api/prompts/'.$slug, [
@@ -34,10 +37,14 @@ class PromptApiTest extends TestCase
             'target_model' => 'Claude Sonnet',
             'visibility' => 'public',
             'tags' => ['research'],
-        ])->assertOk()->assertJsonPath('data.visibility', 'public');
+        ])->assertOk()
+            ->assertJsonPath('data.visibility', 'public')
+            ->assertJsonPath('data.current_version', 2);
+        $this->assertDatabaseHas('prompt_versions', ['version_number' => 2, 'title' => 'Updated research prompt']);
 
         $this->deleteJson('/api/prompts/'.$slug)->assertNoContent();
         $this->assertDatabaseMissing('prompts', ['slug' => $slug]);
+        $this->assertDatabaseCount('prompt_versions', 0);
     }
 
     public function test_user_cannot_modify_another_users_prompt(): void

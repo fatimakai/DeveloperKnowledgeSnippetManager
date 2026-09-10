@@ -8,19 +8,31 @@
                     <span>{{ ucfirst($prompt->visibility) }}</span>
                     <span aria-hidden="true">&middot;</span>
                     <span>{{ $prompt->upvotes_count }} upvotes</span>
+                    @if($prompt->versions_count > 0)
+                        <span aria-hidden="true">&middot;</span>
+                        <span>Version {{ $prompt->versions_count }}</span>
+                    @endif
                 </div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $prompt->title }}</h1>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">By {{ $prompt->user->name }}</p>
             </div>
             @auth
                 @if(auth()->id() === $prompt->user_id)
-                    <a href="{{ route('prompts.edit', $prompt) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Edit</a>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ route('prompts.history.index', $prompt) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Version history</a>
+                        <a href="{{ route('prompts.edit', $prompt) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Edit</a>
+                    </div>
                 @endif
             @endauth
         </div>
     </x-slot>
 
     <div class="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
+        @if(session('success'))
+            <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200">
+                {{ session('success') }}
+            </div>
+        @endif
         @if($prompt->description)
             <p class="text-lg text-gray-700 dark:text-gray-200">{{ $prompt->description }}</p>
         @endif

@@ -17,6 +17,16 @@ class PromptPolicy
         return $user->id === $prompt->user_id;
     }
 
+    public function viewHistory(User $user, Prompt $prompt): bool
+    {
+        return $user->id === $prompt->user_id;
+    }
+
+    public function restoreVersion(User $user, Prompt $prompt): bool
+    {
+        return $user->id === $prompt->user_id;
+    }
+
     public function delete(User $user, Prompt $prompt): bool
     {
         return $user->id === $prompt->user_id;

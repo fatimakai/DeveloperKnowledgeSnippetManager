@@ -36,7 +36,7 @@
         <section class="mx-auto grid max-w-6xl gap-6 px-6 pb-24 md:grid-cols-3">
             @foreach([
                 ['Searchable by design', 'Find prompts by purpose, target model, or tag instead of digging through old documents.'],
-                ['Built for iteration', 'Keep examples alongside each prompt today, with version history and AI refinement coming next.'],
+                ['Built for iteration', 'Compare every meaningful edit, restore older versions safely, and keep examples alongside each prompt.'],
                 ['Share with confidence', 'Publish useful prompts to the community or keep private work in your own library.'],
             ] as [$title, $copy])
                 <article class="rounded-2xl border border-gray-800 bg-gray-900 p-7">

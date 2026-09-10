@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PromptApiResource;
 use App\Models\Prompt;
 use App\Models\Tag;
+use App\Services\PromptVersionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,7 @@ class PromptApiController extends Controller
         $this->applyFilters($query, $request);
 
         return PromptApiResource::collection(
-            $query->with(['user', 'tags'])->withCount('upvotes')->latest()->paginate(15)
+            $query->with(['user', 'tags'])->withCount(['upvotes', 'versions'])->latest()->paginate(15)
         );
     }
 
@@ -27,42 +28,44 @@ class PromptApiController extends Controller
     {
         Gate::authorize('view', $prompt);
 
-        return new PromptApiResource($prompt->load(['user', 'tags'])->loadCount('upvotes'));
+        return new PromptApiResource($prompt->load(['user', 'tags'])->loadCount(['upvotes', 'versions']));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, PromptVersionService $versions): JsonResponse
     {
         $data = $request->validate($this->rules());
 
-        $prompt = DB::transaction(function () use ($data, $request): Prompt {
+        $prompt = DB::transaction(function () use ($data, $request, $versions): Prompt {
             $prompt = Prompt::create([
                 ...collect($data)->except('tags')->all(),
                 'user_id' => $request->user()->id,
                 'visibility' => $data['visibility'] ?? Prompt::VISIBILITY_PRIVATE,
             ]);
             $this->syncTags($prompt, $data['tags'] ?? []);
+            $versions->record($prompt, $request->user());
 
             return $prompt;
         });
 
-        return (new PromptApiResource($prompt->load(['user', 'tags'])->loadCount('upvotes')))
+        return (new PromptApiResource($prompt->load(['user', 'tags'])->loadCount(['upvotes', 'versions'])))
             ->response()
             ->setStatusCode(201);
     }
 
-    public function update(Request $request, Prompt $prompt): PromptApiResource
+    public function update(Request $request, Prompt $prompt, PromptVersionService $versions): PromptApiResource
     {
         Gate::authorize('update', $prompt);
         $data = $request->validate($this->rules(partial: true));
 
-        DB::transaction(function () use ($data, $prompt): void {
+        DB::transaction(function () use ($data, $prompt, $request, $versions): void {
             $prompt->update(collect($data)->except('tags')->all());
             if (array_key_exists('tags', $data)) {
                 $this->syncTags($prompt, $data['tags']);
             }
+            $versions->record($prompt, $request->user());
         });
 
-        return new PromptApiResource($prompt->refresh()->load(['user', 'tags'])->loadCount('upvotes'));
+        return new PromptApiResource($prompt->refresh()->load(['user', 'tags'])->loadCount(['upvotes', 'versions']));
     }
 
     public function destroy(Prompt $prompt)

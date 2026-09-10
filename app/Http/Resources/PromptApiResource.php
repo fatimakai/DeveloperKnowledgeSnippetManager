@@ -25,6 +25,7 @@ class PromptApiResource extends JsonResource
                 'name' => $this->user->name,
             ]),
             'upvotes_count' => $this->whenCounted('upvotes'),
+            'current_version' => $this->whenCounted('versions'),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
