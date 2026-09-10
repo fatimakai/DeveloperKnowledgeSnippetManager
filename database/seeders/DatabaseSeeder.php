@@ -2,37 +2,30 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Snippet;
+use App\Models\Prompt;
 use App\Models\Tag;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Upvote;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Create test user
-        $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $demo = User::factory()->create([
+            'name' => 'PromptForge Demo',
+            'email' => 'demo@promptforge.test',
         ]);
+        $creators = User::factory(5)->create()->push($demo);
+        $tags = collect(['marketing', 'engineering', 'research', 'support', 'writing', 'analysis'])
+            ->map(fn (string $name) => Tag::create(compact('name')));
 
-        // Create tags
-        $tags = Tag::factory(15)->create();
-
-        // Create snippets and attach random tags
-        Snippet::factory(50)
-            ->for($user)
-            ->create()
-            ->each(function ($snippet) use ($tags) {
-                // Attach 2-5 random tags to each snippet
-                $snippet->tags()->attach(
-                    $tags->random(rand(2, 5))->pluck('id')->toArray()
-                );
-            });
+        Prompt::factory(30)->recycle($creators)->create()->each(function (Prompt $prompt) use ($tags, $creators): void {
+            $prompt->tags()->attach($tags->random(random_int(1, 3))->pluck('id'));
+            if ($prompt->isPublic()) {
+                $creators->random(random_int(0, min(4, $creators->count())))
+                    ->each(fn (User $user) => Upvote::firstOrCreate(['user_id' => $user->id, 'prompt_id' => $prompt->id]));
+            }
+        });
     }
 }

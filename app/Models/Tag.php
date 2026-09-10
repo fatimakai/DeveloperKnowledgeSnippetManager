@@ -7,14 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tag extends Model
 {
-        use HasFactory;
+    use HasFactory;
 
     protected $fillable = ['name'];
 
-    public function snippets()
+    public function prompts()
     {
-    return $this->belongsToMany(Snippet::class, 'snippet_tag', 'tag_id', 'snippet_id');
+        return $this->belongsToMany(Prompt::class)->withTimestamps();
     }
 }
-
-

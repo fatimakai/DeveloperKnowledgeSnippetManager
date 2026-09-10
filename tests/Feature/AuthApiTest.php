@@ -24,13 +24,13 @@ class AuthApiTest extends TestCase
         ]);
 
         $response->assertOk()
-                 ->assertJsonStructure([
-                     'message',
-                     'token',
-                     'user' => ['id', 'name', 'email'],
-                 ])
-                 ->assertJsonPath('message', 'Login successful')
-                 ->assertJsonPath('user.email', 'test@example.com');
+            ->assertJsonStructure([
+                'message',
+                'token',
+                'user' => ['id', 'name', 'email'],
+            ])
+            ->assertJsonPath('message', 'Login successful')
+            ->assertJsonPath('user.email', 'test@example.com');
 
         $this->assertNotNull($response->json('token'));
     }
@@ -43,7 +43,7 @@ class AuthApiTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 
     public function test_user_cannot_login_with_wrong_password()
@@ -59,7 +59,7 @@ class AuthApiTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 
     public function test_login_requires_email()
@@ -69,7 +69,7 @@ class AuthApiTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 
     public function test_login_requires_password()
@@ -79,7 +79,22 @@ class AuthApiTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-                 ->assertJsonValidationErrors(['password']);
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_api_login_is_rate_limited_per_identity_and_ip()
+    {
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->postJson('/api/login', [
+                'email' => 'rate-limit@example.com',
+                'password' => 'wrong-password',
+            ])->assertUnprocessable();
+        }
+
+        $this->postJson('/api/login', [
+            'email' => 'rate-limit@example.com',
+            'password' => 'wrong-password',
+        ])->assertTooManyRequests();
     }
 
     public function test_user_can_logout()
@@ -90,7 +105,7 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/logout');
 
         $response->assertOk()
-                 ->assertJsonPath('message', 'Logout successful');
+            ->assertJsonPath('message', 'Logout successful');
     }
 
     public function test_logout_requires_authentication()
@@ -117,7 +132,7 @@ class AuthApiTest extends TestCase
 
         // Use token for authenticated request
         $response = $this->withHeader('Authorization', "Bearer $token")
-                        ->getJson('/api/snippets');
+            ->getJson('/api/prompts');
 
         $response->assertOk();
     }

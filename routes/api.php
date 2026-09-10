@@ -1,22 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\SnippetApiController;
-use App\Http\Controllers\Api\PublicSnippetApiController;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\PromptApiController;
+use App\Http\Controllers\Api\PublicPromptApiController;
+use Illuminate\Support\Facades\Route;
 
-// Public auth endpoints
-Route::post('login', [AuthApiController::class, 'login']);
+Route::post('/login', [AuthApiController::class, 'login'])->middleware('throttle:api-login');
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', [AuthApiController::class, 'logout']);
-    Route::get('snippets', [SnippetApiController::class, 'index']);
-    Route::get('snippets/{snippet}', [SnippetApiController::class, 'show']);
-    Route::post('snippets', [SnippetApiController::class, 'store']);
-    Route::put('snippets/{snippet}', [SnippetApiController::class, 'update']);
-    Route::delete('snippets/{snippet}', [SnippetApiController::class, 'destroy']);
+Route::get('/public/prompts', [PublicPromptApiController::class, 'index']);
+Route::get('/public/prompts/{prompt:slug}', [PublicPromptApiController::class, 'show']);
+
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('/logout', [AuthApiController::class, 'logout']);
+    Route::apiResource('prompts', PromptApiController::class)
+        ->parameters(['prompts' => 'prompt'])
+        ->names('api.prompts');
 });
-
-// Public read-only API
-Route::get('public/snippets', [PublicSnippetApiController::class, 'index']);
-Route::get('public/snippets/{snippet:slug}', [PublicSnippetApiController::class, 'show']);

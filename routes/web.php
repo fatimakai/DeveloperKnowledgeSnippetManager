@@ -1,48 +1,49 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PromptController;
+use App\Http\Controllers\PromptExportController;
+use App\Models\Prompt;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SnippetController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\ExportController;
 
+Route::view('/', 'welcome')->name('home');
 
+Route::get('/prompts', [PromptController::class, 'index'])->name('prompts.index');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::middleware(['auth', 'verified'])->group(function (): void {
+    Route::get('/dashboard', function () {
+        $topPrompts = Prompt::query()
+            ->where('visibility', Prompt::VISIBILITY_PUBLIC)
+            ->with(['user', 'tags'])
+            ->withCount('upvotes')
+            ->orderByDesc('upvotes_count')
+            ->latest()
+            ->limit(5)
+            ->get();
 
-Route::get('/dashboard', function () {
-    // Get top contributors ranked by number of public snippets
-    $topContributors = \App\Models\User::withCount(['snippets' => function ($query) {
-        $query->where('is_public', true);
-    }])
-    ->orderByDesc('snippets_count')
-    ->limit(5)
-    ->get();
-    
-    return view('dashboard', ['topContributors' => $topContributors]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+        $topCreators = User::query()
+            ->whereHas('prompts', fn ($query) => $query->where('visibility', Prompt::VISIBILITY_PUBLIC))
+            ->withCount(['prompts' => fn ($query) => $query->where('visibility', Prompt::VISIBILITY_PUBLIC)])
+            ->orderByDesc('prompts_count')
+            ->limit(5)
+            ->get();
 
-Route::middleware('auth')->group(function () {
+        return view('dashboard', compact('topPrompts', 'topCreators'));
+    })->name('dashboard');
+
+    Route::get('/prompts/mine', [PromptController::class, 'mine'])->name('prompts.mine');
+    Route::get('/prompts/bookmarked', [PromptController::class, 'bookmarked'])->name('prompts.bookmarked');
+    Route::get('/prompts/create', [PromptController::class, 'create'])->name('prompts.create');
+    Route::get('/prompts/{prompt:slug}/edit', [PromptController::class, 'edit'])->name('prompts.edit');
+    Route::get('/exports/prompts.json', [PromptExportController::class, 'all'])->name('prompts.export.all');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/tags/autocomplete', [TagController::class, 'autocomplete'])->name('tags.autocomplete');
-
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
-    // Export routes (must come first before resource routes)
-    Route::get('/snippets/export-all-json', [ExportController::class, 'exportAllJson'])->name('snippets.export.all.json');
-    Route::get('/snippets/export-all-pdf', [ExportController::class, 'exportAllPdf'])->name('snippets.export.all.pdf');
-    Route::post('/snippets/export-bulk-json', [ExportController::class, 'exportBulkJson'])->name('snippets.export.bulk.json');
-    Route::post('/snippets/export-bulk-pdf', [ExportController::class, 'exportBulkPdf'])->name('snippets.export.bulk.pdf');
-    Route::get('/snippets/{snippet}/export-json', [ExportController::class, 'exportSnippetJson'])->name('snippets.export.json');
-    Route::get('/snippets/{snippet}/export-pdf', [ExportController::class, 'exportSnippetPdf'])->name('snippets.export.pdf');
-    
-    // Snippet routes
-    Route::get('/snippets/saved', [SnippetController::class, 'savedSnippets'])->name('snippets.saved');
-    Route::get('/snippets/my', [SnippetController::class, 'mySnippets'])->name('snippets.my');
-    Route::resource('snippets', SnippetController::class);
 });
+
+Route::get('/prompts/{prompt:slug}', [PromptController::class, 'show'])->name('prompts.show');
+Route::get('/prompts/{prompt:slug}/export', [PromptExportController::class, 'show'])->name('prompts.export');
 
 require __DIR__.'/auth.php';

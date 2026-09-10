@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Snippet;
+use App\Models\Prompt;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,30 +11,24 @@ class DashboardLoadTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_loads()
+    public function test_public_pages_load(): void
     {
-        $user = User::factory()->create();
-        
-        $response = $this->actingAs($user)->get('/dashboard');
-        
-        $response->assertOk();
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('PromptForge')
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+        $this->get('/prompts')->assertOk()->assertSee('Discover prompts');
     }
 
-    public function test_snippets_index_loads()
+    public function test_authenticated_workspace_pages_load(): void
     {
         $user = User::factory()->create();
-        
-        $response = $this->actingAs($user)->get('/snippets');
-        
-        $response->assertOk();
-    }
+        Prompt::factory()->for($user)->create();
 
-    public function test_my_snippets_loads()
-    {
-        $user = User::factory()->create();
-        
-        $response = $this->actingAs($user)->get('/snippets/my');
-        
-        $response->assertOk();
+        $this->actingAs($user)->get('/dashboard')->assertOk();
+        $this->actingAs($user)->get('/prompts/mine')->assertOk();
+        $this->actingAs($user)->get('/prompts/bookmarked')->assertOk();
+        $this->actingAs($user)->get('/prompts/create')->assertOk();
     }
 }

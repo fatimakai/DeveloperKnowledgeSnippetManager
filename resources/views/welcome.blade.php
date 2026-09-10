@@ -1,44 +1,50 @@
-<x-app-layout>
-    <x-slot name="header"></x-slot> <!-- remove header for full-page look -->
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PromptForge — Build better prompts together</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-950 font-sans text-white">
+    <header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <a href="{{ route('home') }}" class="text-xl font-bold">Prompt<span class="text-indigo-400">Forge</span></a>
+        <nav class="flex items-center gap-4">
+            <a href="{{ route('prompts.index') }}" class="text-sm text-gray-300 hover:text-white">Discover prompts</a>
+            @auth
+                <a href="{{ route('dashboard') }}" class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950">Dashboard</a>
+            @else
+                <a href="{{ route('login') }}" class="text-sm text-gray-300 hover:text-white">Log in</a>
+                <a href="{{ route('register') }}" class="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold hover:bg-indigo-400">Get started</a>
+            @endauth
+        </nav>
+    </header>
 
-    <div class="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden">
-        <!-- Background image -->
-        <div class="absolute inset-0">
-            <img src="{{ asset('images/kevin.jpg') }}" 
-                 class="w-full h-full object-cover opacity-60" alt="Background">
-            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-        </div>
-
-        <!-- Card -->
-        <div class="relative bg-white dark:bg-gray-800 shadow-2xl rounded-xl w-[90%] max-w-5xl overflow-hidden flex flex-col md:flex-row">
-            
-            <!-- Left side (Login/Register) -->
-            <div class="md:w-1/2 p-12 flex flex-col justify-center space-y-8">
-                <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Welcome to Knowledge Snippets</h1>
-                <p class="text-gray-600 dark:text-gray-300">
-                    Save, organize, and share your code snippets easily.
-                </p>
-
-                <div class="flex space-x-4">
-                    <a href="{{ route('login') }}" 
-                       class="flex-1 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 text-center shadow">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}" 
-                       class="flex-1 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 text-center shadow">
-                        Register
-                    </a>
-                </div>
+    <main>
+        <section class="mx-auto max-w-5xl px-6 py-28 text-center">
+            <p class="mb-5 text-sm font-semibold uppercase tracking-[0.3em] text-indigo-400">A shared prompt workspace</p>
+            <h1 class="text-5xl font-bold tracking-tight sm:text-7xl">Forge prompts your team can trust.</h1>
+            <p class="mx-auto mt-7 max-w-2xl text-lg leading-8 text-gray-300">Store, discover, test, and refine the prompts behind your AI products—all in one searchable library.</p>
+            <div class="mt-10 flex justify-center gap-4">
+                <a href="{{ route('prompts.index') }}" class="rounded-lg bg-indigo-500 px-6 py-3 font-semibold hover:bg-indigo-400">Explore the library</a>
+                @guest<a href="{{ route('register') }}" class="rounded-lg border border-gray-700 px-6 py-3 font-semibold hover:border-gray-500">Create your workspace</a>@endguest
             </div>
+        </section>
 
-            <!-- Right side (Image / Design) -->
-            <div class="md:w-1/2 hidden md:block relative">
-                <img src="{{ asset('images/right.jpg') }}" 
-                     class="w-full h-full object-cover" alt="Design Image">
-                <!-- Optional overlay or design elements -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-30"></div>
-            </div>
-
-        </div>
-    </div>
-</x-app-layout>
+        <section class="mx-auto grid max-w-6xl gap-6 px-6 pb-24 md:grid-cols-3">
+            @foreach([
+                ['Searchable by design', 'Find prompts by purpose, target model, or tag instead of digging through old documents.'],
+                ['Built for iteration', 'Keep examples alongside each prompt today, with version history and AI refinement coming next.'],
+                ['Share with confidence', 'Publish useful prompts to the community or keep private work in your own library.'],
+            ] as [$title, $copy])
+                <article class="rounded-2xl border border-gray-800 bg-gray-900 p-7">
+                    <h2 class="text-lg font-semibold">{{ $title }}</h2>
+                    <p class="mt-3 text-sm leading-6 text-gray-400">{{ $copy }}</p>
+                </article>
+            @endforeach
+        </section>
+    </main>
+</body>
+</html>

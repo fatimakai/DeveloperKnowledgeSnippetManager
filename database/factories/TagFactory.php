@@ -6,7 +6,7 @@ use App\Models\Tag;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tag>
+ * @extends Factory<Tag>
  */
 class TagFactory extends Factory
 {
@@ -23,12 +23,12 @@ class TagFactory extends Factory
             'database', 'api', 'authentication', 'validation', 'middleware',
             'testing', 'performance', 'security', 'regex', 'async',
             'error-handling', 'caching', 'pagination', 'search', 'sorting',
-            'filtering', 'optimization', 'debugging', 'logging', 'documentation'
+            'filtering', 'optimization', 'debugging', 'logging', 'documentation',
         ];
 
         // Get a tag that hasn't been used yet
         $availableTags = array_diff($allTags, $usedTags);
-        
+
         if (empty($availableTags)) {
             $availableTags = $allTags;
             $usedTags = [];

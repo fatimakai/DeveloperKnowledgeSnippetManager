@@ -18,17 +18,13 @@ class SendWelcomeEmailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public User $user)
-    {
-        $this->onConnection('redis');
-        $this->onQueue('default');
-    }
+    public function __construct(public User $user) {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        Mail::send(new WelcomeMail($this->user));
+        Mail::to($this->user->email)->send(new WelcomeMail($this->user));
     }
 }

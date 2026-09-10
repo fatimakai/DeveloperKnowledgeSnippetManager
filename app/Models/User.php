@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, HasApiTokens, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -47,27 +48,18 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Get the snippets created by this user.
-     */
-    public function snippets()
+    public function prompts()
     {
-        return $this->hasMany(Snippet::class);
+        return $this->hasMany(Prompt::class);
     }
 
-    /**
-     * Get the likes made by this user.
-     */
-    public function likes()
+    public function upvotes()
     {
-        return $this->hasMany(Like::class);
+        return $this->hasMany(Upvote::class);
     }
 
-    /**
-     * Get the snippets saved by this user.
-     */
-    public function savedSnippets()
+    public function bookmarks()
     {
-        return $this->hasMany(SavedSnippet::class);
+        return $this->hasMany(Bookmark::class);
     }
 }

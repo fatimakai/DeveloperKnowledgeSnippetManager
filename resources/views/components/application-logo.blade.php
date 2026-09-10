@@ -1,5 +1,3 @@
-<img
-    src="{{ asset('images/logo.png') }}"
-    alt="Logo"
-    {{ $attributes->merge(['class' => 'h-8 w-auto']) }}
->
+<span {{ $attributes->merge(['class' => 'inline-flex items-center justify-center rounded-xl bg-indigo-600 font-black tracking-tight text-white']) }} aria-label="PromptForge">
+    PF
+</span>
