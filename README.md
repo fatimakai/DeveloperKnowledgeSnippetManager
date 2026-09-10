@@ -9,6 +9,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Tags, full prompt search, filters, and popularity/recent sorting
 - Immutable version history with field-by-field comparison and safe restore
 - Queued OpenRouter prompt analysis with intent, weaknesses, and an improved before/after prompt
+- Google and GitHub OAuth sign-up/login with secure provider-account linking
 - Community upvotes and personal bookmarks
 - Secure owner-only editing and deletion
 - Individual and account-wide JSON exports
@@ -16,7 +17,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-Shared collections, OAuth, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
+Shared collections, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
 
 ## Stack
 
@@ -47,6 +48,8 @@ php artisan queue:work
 ```
 
 To enable AI analysis, set `OPENROUTER_API_KEY` and optionally `OPENROUTER_MODEL`. `PROMPT_ANALYSIS_PER_HOUR` controls the per-user cost limit and defaults to five.
+
+To enable social login, create OAuth applications with Google and GitHub, then set their client IDs, client secrets, and callback URLs from `.env.example`. The local callbacks are `${APP_URL}/auth/google/callback` and `${APP_URL}/auth/github/callback`.
 
 ## Tests
 

@@ -2,6 +2,14 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    @if (session('oauth_error'))
+        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200" role="alert">
+            {{ session('oauth_error') }}
+        </div>
+    @endif
+
+    <x-oauth-buttons />
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
