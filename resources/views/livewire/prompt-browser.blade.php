@@ -67,6 +67,7 @@
                     <div>
                         <a href="{{ route('prompts.show', $prompt) }}" class="text-lg font-bold text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $prompt->title }}</a>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $prompt->target_model }} &middot; By {{ $prompt->user->name }}</p>
+                        @if($prompt->collection)<a href="{{ route('collections.show', $prompt->collection) }}" class="mt-2 inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700 dark:bg-violet-950 dark:text-violet-300">{{ $prompt->collection->name }}</a>@endif
                     </div>
                     <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $prompt->isPublic() ? 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-200' }}">
                         {{ ucfirst($prompt->visibility) }}
@@ -102,10 +103,12 @@
                     <div class="flex items-center gap-3 text-sm font-semibold">
                         <a href="{{ route('prompts.show', $prompt) }}" class="text-indigo-600 hover:text-indigo-500">Open</a>
                         @auth
-                            @if(auth()->id() === $prompt->user_id)
+                            @can('update', $prompt)
                                 <a href="{{ route('prompts.edit', $prompt) }}" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Edit</a>
+                            @endcan
+                            @can('delete', $prompt)
                                 <button type="button" wire:click="deletePrompt({{ $prompt->id }})" wire:confirm="Delete this prompt permanently?" class="text-red-600 hover:text-red-500">Delete</button>
-                            @endif
+                            @endcan
                         @endauth
                     </div>
                 </div>

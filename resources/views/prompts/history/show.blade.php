@@ -8,12 +8,12 @@
             </div>
             <div class="flex gap-2">
                 <a href="{{ route('prompts.history.index', $prompt) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">All versions</a>
-                @unless($isCurrent)
+                @if(! $isCurrent && auth()->user()->can('restoreVersion', $prompt))
                     <form method="POST" action="{{ route('prompts.history.restore', [$prompt, $version]) }}" onsubmit="return confirm('Restore version {{ $version->version_number }}? The current prompt will remain in its history.');">
                         @csrf
                         <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Restore this version</button>
                     </form>
-                @endunless
+                @endif
             </div>
         </div>
     </x-slot>

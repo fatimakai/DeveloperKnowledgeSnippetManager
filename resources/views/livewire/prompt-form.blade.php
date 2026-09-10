@@ -18,10 +18,11 @@
 
             <div>
                 <label for="visibility" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Visibility</label>
-                <select id="visibility" wire:model="visibility" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                <select id="visibility" wire:model="visibility" @disabled(isset($prompt) && $prompt->collection_id) class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                     <option value="private">Private</option>
                     <option value="public">Public</option>
                 </select>
+                @if(isset($prompt) && $prompt->collection_id)<p class="mt-1 text-xs text-gray-500">Shared collection prompts always stay private.</p>@endif
                 @error('visibility') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
         </div>

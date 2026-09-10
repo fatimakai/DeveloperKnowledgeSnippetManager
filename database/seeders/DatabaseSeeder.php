@@ -6,6 +6,7 @@ use App\Models\Prompt;
 use App\Models\Tag;
 use App\Models\Upvote;
 use App\Models\User;
+use App\Services\PlatformRoleService;
 use App\Services\PromptVersionService;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +14,24 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $roles = app(PlatformRoleService::class);
+        $roles->ensure();
+
         $demo = User::factory()->create([
             'name' => 'PromptForge Demo',
             'email' => 'demo@promptforge.test',
         ]);
+        $demo->assignRole(PlatformRoleService::USER);
+        User::factory()->create(['name' => 'PromptForge Admin', 'email' => 'admin@promptforge.test'])
+            ->assignRole(PlatformRoleService::ADMIN);
+        User::factory()->create(['name' => 'PromptForge Moderator', 'email' => 'moderator@promptforge.test'])
+            ->assignRole(PlatformRoleService::MODERATOR);
         $creators = User::factory(5)->create()->push($demo);
+        $creators->each(function (User $user): void {
+            if (! $user->hasAnyRole(PlatformRoleService::ROLES)) {
+                $user->assignRole(PlatformRoleService::USER);
+            }
+        });
         $tags = collect(['marketing', 'engineering', 'research', 'support', 'writing', 'analysis'])
             ->map(fn (string $name) => Tag::create(compact('name')));
         $versions = app(PromptVersionService::class);

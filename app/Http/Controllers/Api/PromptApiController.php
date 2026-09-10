@@ -16,11 +16,14 @@ class PromptApiController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Prompt::query()->where('user_id', $request->user()->id);
+        $query = Prompt::query()->where(function ($scope) use ($request): void {
+            $scope->where('user_id', $request->user()->id)
+                ->orWhereHas('collection.memberships', fn ($members) => $members->where('user_id', $request->user()->id));
+        });
         $this->applyFilters($query, $request);
 
         return PromptApiResource::collection(
-            $query->with(['user', 'tags'])->withCount(['upvotes', 'versions'])->latest()->paginate(15)
+            $query->with(['user', 'tags', 'collection'])->withCount(['upvotes', 'versions'])->latest()->paginate(15)
         );
     }
 
@@ -28,7 +31,7 @@ class PromptApiController extends Controller
     {
         Gate::authorize('view', $prompt);
 
-        return new PromptApiResource($prompt->load(['user', 'tags'])->loadCount(['upvotes', 'versions']));
+        return new PromptApiResource($prompt->load(['user', 'tags', 'collection'])->loadCount(['upvotes', 'versions']));
     }
 
     public function store(Request $request, PromptVersionService $versions): JsonResponse

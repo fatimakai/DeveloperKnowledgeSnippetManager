@@ -11,14 +11,17 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Queued OpenRouter prompt analysis with intent, weaknesses, and an improved before/after prompt
 - Google and GitHub OAuth sign-up/login with secure provider-account linking
 - Authenticator-app two-factor authentication with one-time recovery codes
+- Admin, Moderator, and User platform roles with permission-gated management screens
+- Private shared collections with Owner, Editor, and Viewer membership roles
+- Expiring invite links stored as hashes, plus prompt reporting and moderation
 - Community upvotes and personal bookmarks
-- Secure owner-only editing and deletion
+- Policy-based personal and shared prompt editing and deletion
 - Individual and account-wide JSON exports
 - Sanctum-authenticated Prompt API and public read-only API
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-Shared collections, RBAC, and sandbox subscriptions are planned in later phases.
+Sandbox subscriptions are planned in the next phase.
 
 ## Stack
 
@@ -54,6 +57,8 @@ To enable social login, create OAuth applications with Google and GitHub, then s
 
 Two-factor authentication can be enabled from the profile page. Secrets and hashed recovery codes are encrypted at rest. The default login challenge expires after five minutes and allows five failed attempts per minute; both limits are configurable in `.env.example`.
 
+`php artisan db:seed` creates portfolio accounts for `demo@promptforge.test`, `moderator@promptforge.test`, and `admin@promptforge.test`; the factory password is `password`. Platform roles use Spatie Laravel Permission. Collection invites expire after seven days and expose the raw token only once.
+
 ## Tests
 
 ```bash
@@ -68,11 +73,14 @@ The test environment uses an in-memory SQLite database and does not require Dock
 - `/` - landing page
 - `/prompts` - public prompt discovery
 - `/prompts/{slug}` - authorized prompt detail
-- `/prompts/{slug}/history` - owner-only version timeline and comparison
+- `/prompts/{slug}/history` - authorized personal/shared version timeline and comparison
 - `/dashboard` - rankings
 - `/prompts/mine` - personal library
 - `/prompts/bookmarked` - bookmarks
 - `/prompts/create` - prompt creation
+- `/collections` - shared collection workspace
+- `/moderation` - Moderator/Admin report queue
+- `/admin/users` - Admin-only platform role management
 
 ## API routes
 

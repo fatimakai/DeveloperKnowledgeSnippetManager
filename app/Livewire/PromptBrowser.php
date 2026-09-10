@@ -108,7 +108,7 @@ class PromptBrowser extends Component
             ->when($this->targetModel !== '', fn (Builder $query) => $query->where('target_model', $this->targetModel))
             ->when($this->tag !== '', fn (Builder $query) => $query->whereHas('tags', fn (Builder $tags) => $tags->where('name', $this->tag)))
             ->when($this->visibility !== '' && $this->mode !== 'bookmarked', fn (Builder $query) => $query->where('visibility', $this->visibility))
-            ->with(['user', 'tags'])
+            ->with(['user', 'tags', 'collection'])
             ->withCount('upvotes')
             ->when(auth()->check(), function (Builder $query): void {
                 $query->withExists([
@@ -137,7 +137,10 @@ class PromptBrowser extends Component
     private function applyScope(Builder $query): Builder
     {
         return match ($this->mode) {
-            'mine' => $query->where('user_id', auth()->id()),
+            'mine' => $query->where(function (Builder $mine): void {
+                $mine->where('user_id', auth()->id())
+                    ->orWhereHas('collection.memberships', fn (Builder $members) => $members->where('user_id', auth()->id()));
+            }),
             'bookmarked' => $query
                 ->where('visibility', Prompt::VISIBILITY_PUBLIC)
                 ->whereHas('bookmarks', fn (Builder $bookmarks) => $bookmarks->where('user_id', auth()->id())),

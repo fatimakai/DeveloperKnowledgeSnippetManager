@@ -60,6 +60,8 @@ class OAuthAccountService
                 $user->markEmailAsVerified();
             }
 
+            app(PlatformRoleService::class)->assignDefault($user);
+
             $user->oauthAccounts()->create([
                 'provider' => $provider,
                 'provider_user_id' => $providerUserId,

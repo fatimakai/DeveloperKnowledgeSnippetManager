@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Prompt;
+use App\Models\PromptCollection;
+use App\Policies\PromptCollectionPolicy;
 use App\Policies\PromptPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Prompt::class, PromptPolicy::class);
+        Gate::policy(PromptCollection::class, PromptCollectionPolicy::class);
 
         RateLimiter::for('api-login', fn (Request $request) => Limit::perMinute(5)->by(
             Str::lower((string) $request->input('email')).'|'.$request->ip()

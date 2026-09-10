@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -78,6 +79,27 @@ class User extends Authenticatable implements MustVerifyEmail
     public function oauthAccounts(): HasMany
     {
         return $this->hasMany(OAuthAccount::class);
+    }
+
+    public function ownedCollections(): HasMany
+    {
+        return $this->hasMany(PromptCollection::class, 'owner_id');
+    }
+
+    public function collectionMemberships(): HasMany
+    {
+        return $this->hasMany(CollectionMember::class);
+    }
+
+    public function collections()
+    {
+        return $this->belongsToMany(PromptCollection::class, 'collection_members')
+            ->withPivot(['role', 'joined_at'])->withTimestamps();
+    }
+
+    public function promptReports(): HasMany
+    {
+        return $this->hasMany(PromptReport::class, 'reported_by');
     }
 
     public function twoFactorEnabled(): bool

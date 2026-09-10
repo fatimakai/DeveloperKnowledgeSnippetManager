@@ -18,7 +18,7 @@ class Prompt extends Model
     public const VISIBILITY_PUBLIC = 'public';
 
     protected $fillable = [
-        'user_id', 'title', 'slug', 'description', 'prompt_text', 'target_model',
+        'user_id', 'collection_id', 'title', 'slug', 'description', 'prompt_text', 'target_model',
         'example_input', 'example_output', 'visibility',
     ];
 
@@ -27,6 +27,12 @@ class Prompt extends Model
         static::creating(function (Prompt $prompt): void {
             if (! $prompt->slug) {
                 $prompt->slug = static::uniqueSlug($prompt->title);
+            }
+        });
+
+        static::saving(function (Prompt $prompt): void {
+            if ($prompt->collection_id) {
+                $prompt->visibility = self::VISIBILITY_PRIVATE;
             }
         });
     }
@@ -54,6 +60,11 @@ class Prompt extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function collection(): BelongsTo
+    {
+        return $this->belongsTo(PromptCollection::class, 'collection_id');
+    }
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
@@ -77,6 +88,11 @@ class Prompt extends Model
     public function versions(): HasMany
     {
         return $this->hasMany(PromptVersion::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(PromptReport::class);
     }
 
     public function isPublic(): bool

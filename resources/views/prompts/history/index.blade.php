@@ -7,7 +7,7 @@
             </div>
             <div class="flex gap-2">
                 <a href="{{ route('prompts.show', $prompt) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Open prompt</a>
-                <a href="{{ route('prompts.edit', $prompt) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Edit prompt</a>
+                @can('update', $prompt)<a href="{{ route('prompts.edit', $prompt) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Edit prompt</a>@endcan
             </div>
         </div>
     </x-slot>

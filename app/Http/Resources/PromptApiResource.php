@@ -19,6 +19,11 @@ class PromptApiResource extends JsonResource
             'example_input' => $this->example_input,
             'example_output' => $this->example_output,
             'visibility' => $this->visibility,
+            'collection' => $this->whenLoaded('collection', fn () => $this->collection ? [
+                'id' => $this->collection->id,
+                'slug' => $this->collection->slug,
+                'name' => $this->collection->name,
+            ] : null),
             'tags' => $this->whenLoaded('tags', fn () => $this->tags->pluck('name')->values()),
             'author' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,
