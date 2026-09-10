@@ -10,14 +10,28 @@ class PromptAnalysis extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_PROCESSING = 'processing';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_FAILED = 'failed';
+
     protected $fillable = [
         'prompt_id', 'user_id', 'status', 'analysis', 'provider', 'model',
-        'failure_reason', 'input_tokens', 'output_tokens',
+        'failure_reason', 'input_tokens', 'output_tokens', 'source_prompt_text',
+        'source_target_model', 'completed_at',
     ];
 
     protected function casts(): array
     {
-        return ['analysis' => 'array'];
+        return [
+            'analysis' => 'array',
+            'completed_at' => 'datetime',
+            'input_tokens' => 'integer',
+            'output_tokens' => 'integer',
+        ];
     }
 
     public function prompt(): BelongsTo

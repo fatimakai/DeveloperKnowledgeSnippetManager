@@ -8,6 +8,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Prompt text, target model, description, example input, and example output
 - Tags, full prompt search, filters, and popularity/recent sorting
 - Immutable version history with field-by-field comparison and safe restore
+- Queued OpenRouter prompt analysis with intent, weaknesses, and an improved before/after prompt
 - Community upvotes and personal bookmarks
 - Secure owner-only editing and deletion
 - Individual and account-wide JSON exports
@@ -15,7 +16,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-Structured AI analysis, shared collections, OAuth, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
+Shared collections, OAuth, 2FA, RBAC, and sandbox subscriptions are planned in later phases.
 
 ## Stack
 
@@ -44,6 +45,8 @@ Configure database, mail, cache, and queue values in `.env`. Run a queue worker 
 ```bash
 php artisan queue:work
 ```
+
+To enable AI analysis, set `OPENROUTER_API_KEY` and optionally `OPENROUTER_MODEL`. `PROMPT_ANALYSIS_PER_HOUR` controls the per-user cost limit and defaults to five.
 
 ## Tests
 
@@ -76,6 +79,9 @@ Authentication uses bearer tokens returned by `POST /api/login`.
 - `GET /api/prompts/{slug}`
 - `PUT/PATCH /api/prompts/{slug}`
 - `DELETE /api/prompts/{slug}`
+- `GET /api/prompts/{slug}/analyses`
+- `POST /api/prompts/{slug}/analyses`
+- `GET /api/prompts/{slug}/analyses/{analysis}`
 - `POST /api/logout`
 
 Authenticated API endpoints always enforce prompt policies. Public endpoints only return prompts explicitly marked public.

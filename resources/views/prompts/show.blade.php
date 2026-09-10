@@ -71,5 +71,11 @@
         </div>
 
         <a href="{{ route('prompts.export', $prompt) }}" class="inline-flex text-sm font-semibold text-indigo-600 hover:text-indigo-500">Download JSON</a>
+
+        @auth
+            @if(auth()->id() === $prompt->user_id)
+                <livewire:analyze-prompt :prompt="$prompt" />
+            @endif
+        @endauth
     </div>
 </x-app-layout>
