@@ -9,7 +9,7 @@
                     @if($prompt->collection)<span aria-hidden="true">&middot;</span><a href="{{ route('collections.show', $prompt->collection) }}" class="font-semibold text-indigo-600">{{ $prompt->collection->name }}</a>@endif
                     <span aria-hidden="true">&middot;</span>
                     <span>{{ $prompt->upvotes_count }} upvotes</span>
-                    @if($prompt->versions_count > 0)
+                    @if(auth()->user()?->can('viewHistory', $prompt) && $prompt->versions_count > 0)
                         <span aria-hidden="true">&middot;</span>
                         <span>Version {{ $prompt->versions_count }}</span>
                     @endif

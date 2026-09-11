@@ -14,6 +14,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Admin, Moderator, and User platform roles with permission-gated management screens
 - Private shared collections with Owner, Editor, and Viewer membership roles
 - Expiring invite links stored as hashes, plus prompt reporting and moderation
+- Sandbox Pro subscriptions through Razorpay or PayPal with signed, idempotent webhooks
 - Community upvotes and personal bookmarks
 - Policy-based personal and shared prompt editing and deletion
 - Individual and account-wide JSON exports
@@ -21,7 +22,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-Sandbox subscriptions are planned in the next phase.
+The OWASP hardening pass is planned in the next phase.
 
 ## Stack
 
@@ -53,6 +54,10 @@ php artisan queue:work
 
 To enable AI analysis, set `OPENROUTER_API_KEY` and optionally `OPENROUTER_MODEL`. `PROMPT_ANALYSIS_PER_HOUR` controls the per-user cost limit and defaults to five.
 
+PromptForge Pro costs $9/month USD in the demo and raises the AI quota from 5 to 25 analyses per hour while unlocking version history and shared collections. Billing is intentionally sandbox-only: configure `RAZORPAY_KEY_ID` with an `rzp_test_` key plus a Razorpay plan/webhook secret, and configure PayPal sandbox credentials, plan ID, and webhook ID. Point gateway webhooks to `/api/webhooks/razorpay` and `/api/webhooks/paypal`.
+
+Create one recurring monthly plan for exactly USD 9.00 in each sandbox before adding its ID to `.env`. For Razorpay, subscribe the test webhook to the `subscription.authenticated`, `subscription.activated`, `subscription.charged`, `subscription.pending`, `subscription.halted`, `subscription.cancelled`, `subscription.completed`, and `subscription.expired` events. For PayPal, subscribe to the `BILLING.SUBSCRIPTION.ACTIVATED`, `UPDATED`, `SUSPENDED`, `CANCELLED`, and `EXPIRED` events. Checkout callbacks are verified and re-fetched from the provider; webhook signatures and event IDs are verified before local access changes.
+
 To enable social login, create OAuth applications with Google and GitHub, then set their client IDs, client secrets, and callback URLs from `.env.example`. The local callbacks are `${APP_URL}/auth/google/callback` and `${APP_URL}/auth/github/callback`.
 
 Two-factor authentication can be enabled from the profile page. Secrets and hashed recovery codes are encrypted at rest. The default login challenge expires after five minutes and allows five failed attempts per minute; both limits are configurable in `.env.example`.
@@ -79,6 +84,7 @@ The test environment uses an in-memory SQLite database and does not require Dock
 - `/prompts/bookmarked` - bookmarks
 - `/prompts/create` - prompt creation
 - `/collections` - shared collection workspace
+- `/billing` - Free/Pro comparison and sandbox checkout
 - `/moderation` - Moderator/Admin report queue
 - `/admin/users` - Admin-only platform role management
 

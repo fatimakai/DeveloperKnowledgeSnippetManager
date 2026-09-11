@@ -6,6 +6,7 @@ use App\Livewire\EditPrompt;
 use App\Models\Prompt;
 use App\Models\PromptCollection;
 use App\Models\PromptReport;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Services\PlatformRoleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -63,6 +64,7 @@ class RbacAndCollectionsTest extends TestCase
     public function test_collection_creation_always_creates_an_owner_membership(): void
     {
         $owner = User::factory()->create();
+        $this->makePro($owner);
 
         $this->actingAs($owner)->post(route('collections.store'), ['name' => 'Launch prompts', 'description' => 'Shared work'])
             ->assertRedirect();
@@ -76,6 +78,7 @@ class RbacAndCollectionsTest extends TestCase
     {
         [$owner, $collection] = $this->collection();
         $member = User::factory()->create();
+        $this->makePro($member);
         $response = $this->actingAs($owner)->post(route('collections.invite', $collection), ['role' => 'editor']);
         $url = $response->getSession()->get('invite_url');
         $token = Str::afterLast($url, '/');
@@ -92,10 +95,14 @@ class RbacAndCollectionsTest extends TestCase
         $token = Str::random(64);
         $collection->update(['invite_token_hash' => hash('sha256', $token), 'invite_expires_at' => now()->subMinute()]);
 
-        $this->actingAs(User::factory()->create())->post(route('collections.join', $token))->assertNotFound();
+        $expiredInvitee = User::factory()->create();
+        $this->makePro($expiredInvitee);
+        $this->actingAs($expiredInvitee)->post(route('collections.join', $token))->assertNotFound();
         $collection->update(['invite_expires_at' => now()->addDay()]);
         $this->actingAs($owner)->delete(route('collections.invite.destroy', $collection));
-        $this->actingAs(User::factory()->create())->post(route('collections.join', $token))->assertNotFound();
+        $revokedInvitee = User::factory()->create();
+        $this->makePro($revokedInvitee);
+        $this->actingAs($revokedInvitee)->post(route('collections.join', $token))->assertNotFound();
     }
 
     public function test_editor_can_modify_shared_prompts_while_viewer_is_read_only(): void
@@ -103,6 +110,8 @@ class RbacAndCollectionsTest extends TestCase
         [$owner, $collection] = $this->collection();
         $editor = User::factory()->create();
         $viewer = User::factory()->create();
+        $this->makePro($editor);
+        $this->makePro($viewer);
         $collection->memberships()->createMany([
             ['user_id' => $editor->id, 'role' => 'editor', 'joined_at' => now()],
             ['user_id' => $viewer->id, 'role' => 'viewer', 'joined_at' => now()],
@@ -141,6 +150,8 @@ class RbacAndCollectionsTest extends TestCase
         [$owner, $collection] = $this->collection();
         $member = User::factory()->create();
         $outsider = User::factory()->create();
+        $this->makePro($member);
+        $this->makePro($outsider);
         $collection->memberships()->create(['user_id' => $member->id, 'role' => 'viewer', 'joined_at' => now()]);
         $prompt = Prompt::factory()->for($owner)->create(['collection_id' => $collection->id, 'visibility' => 'public']);
 
@@ -155,6 +166,7 @@ class RbacAndCollectionsTest extends TestCase
     {
         [$owner, $collection] = $this->collection();
         $viewer = User::factory()->create();
+        $this->makePro($viewer);
         $collection->memberships()->create(['user_id' => $viewer->id, 'role' => 'viewer', 'joined_at' => now()]);
         $prompt = Prompt::factory()->for($owner)->create(['collection_id' => $collection->id]);
         Sanctum::actingAs($viewer);
@@ -199,9 +211,15 @@ class RbacAndCollectionsTest extends TestCase
     private function collection(): array
     {
         $owner = User::factory()->create();
+        $this->makePro($owner);
         $collection = PromptCollection::create(['owner_id' => $owner->id, 'name' => 'Team library']);
         $collection->memberships()->create(['user_id' => $owner->id, 'role' => 'owner', 'joined_at' => now()]);
 
         return [$owner, $collection];
+    }
+
+    private function makePro(User $user): void
+    {
+        Subscription::factory()->for($user)->active()->create();
     }
 }

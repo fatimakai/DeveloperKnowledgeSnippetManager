@@ -37,7 +37,7 @@ class PromptExportController extends Controller
 
     private function format(Prompt $prompt): array
     {
-        return [
+        $data = [
             'title' => $prompt->title,
             'description' => $prompt->description,
             'prompt_text' => $prompt->prompt_text,
@@ -45,10 +45,15 @@ class PromptExportController extends Controller
             'example_input' => $prompt->example_input,
             'example_output' => $prompt->example_output,
             'visibility' => $prompt->visibility,
-            'version' => $prompt->versions_count,
             'tags' => $prompt->tags->pluck('name')->values(),
             'created_at' => $prompt->created_at?->toIso8601String(),
             'updated_at' => $prompt->updated_at?->toIso8601String(),
         ];
+
+        if (Gate::allows('viewHistory', $prompt)) {
+            $data['version'] = $prompt->versions_count;
+        }
+
+        return $data;
     }
 }

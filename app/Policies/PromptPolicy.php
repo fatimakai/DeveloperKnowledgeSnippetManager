@@ -21,12 +21,12 @@ class PromptPolicy
 
     public function viewHistory(User $user, Prompt $prompt): bool
     {
-        return $prompt->user_id === $user->id || $this->isCollectionMember($user, $prompt);
+        return $user->isPro() && ($prompt->user_id === $user->id || $this->isCollectionMember($user, $prompt));
     }
 
     public function restoreVersion(User $user, Prompt $prompt): bool
     {
-        return $this->canEdit($user, $prompt);
+        return $user->isPro() && $this->canEdit($user, $prompt);
     }
 
     public function analyze(User $user, Prompt $prompt): bool
@@ -40,7 +40,8 @@ class PromptPolicy
             return $user->id === $prompt->user_id;
         }
 
-        return $user->id === $prompt->user_id || $prompt->collection?->owner_id === $user->id;
+        return $user->id === $prompt->user_id
+            || ($user->isPro() && $prompt->collection?->owner_id === $user->id);
     }
 
     public function report(User $user, Prompt $prompt): bool
@@ -50,18 +51,19 @@ class PromptPolicy
 
     private function canEdit(User $user, Prompt $prompt): bool
     {
-        if (! $prompt->collection_id) {
-            return $prompt->user_id === $user->id;
+        if ($prompt->user_id === $user->id) {
+            return true;
         }
 
-        return $prompt->collection?->memberships()
+        return $user->isPro() && ($prompt->collection?->memberships()
             ->where('user_id', $user->id)
             ->whereIn('role', ['owner', 'editor'])
-            ->exists() ?? false;
+            ->exists() ?? false);
     }
 
     private function isCollectionMember(User $user, Prompt $prompt): bool
     {
-        return $prompt->collection?->memberships()->where('user_id', $user->id)->exists() ?? false;
+        return $user->isPro()
+            && ($prompt->collection?->memberships()->where('user_id', $user->id)->exists() ?? false);
     }
 }

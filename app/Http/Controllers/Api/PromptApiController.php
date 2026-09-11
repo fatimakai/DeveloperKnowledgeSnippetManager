@@ -17,8 +17,10 @@ class PromptApiController extends Controller
     public function index(Request $request)
     {
         $query = Prompt::query()->where(function ($scope) use ($request): void {
-            $scope->where('user_id', $request->user()->id)
-                ->orWhereHas('collection.memberships', fn ($members) => $members->where('user_id', $request->user()->id));
+            $scope->where('user_id', $request->user()->id);
+            if ($request->user()->isPro()) {
+                $scope->orWhereHas('collection.memberships', fn ($members) => $members->where('user_id', $request->user()->id));
+            }
         });
         $this->applyFilters($query, $request);
 

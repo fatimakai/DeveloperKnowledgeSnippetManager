@@ -10,6 +10,7 @@
                         <a href="{{ route('prompts.mine') }}" class="text-sm font-medium {{ request()->routeIs('prompts.mine') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white' }}">My prompts</a>
                         <a href="{{ route('prompts.bookmarked') }}" class="text-sm font-medium {{ request()->routeIs('prompts.bookmarked') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white' }}">Bookmarks</a>
                         <a href="{{ route('collections.index') }}" class="text-sm font-medium {{ request()->routeIs('collections.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white' }}">Collections</a>
+                        <a href="{{ route('billing.index') }}" class="text-sm font-medium {{ request()->routeIs('billing.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white' }}">{{ auth()->user()->isPro() ? 'Pro' : 'Upgrade' }}</a>
                         @can('moderate prompts')<a href="{{ route('moderation.index') }}" class="text-sm font-medium {{ request()->routeIs('moderation.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white' }}">Moderate</a>@endcan
                         @can('manage users')<a href="{{ route('admin.users.index') }}" class="text-sm font-medium {{ request()->routeIs('admin.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white' }}">Admin</a>@endcan
                     @endauth
@@ -37,6 +38,7 @@
                 <a href="{{ route('prompts.mine') }}" class="block text-sm font-medium">My prompts</a>
                 <a href="{{ route('prompts.bookmarked') }}" class="block text-sm font-medium">Bookmarks</a>
                 <a href="{{ route('collections.index') }}" class="block text-sm font-medium">Collections</a>
+                <a href="{{ route('billing.index') }}" class="block text-sm font-medium">{{ auth()->user()->isPro() ? 'Pro plan' : 'Upgrade to Pro' }}</a>
                 @can('moderate prompts')<a href="{{ route('moderation.index') }}" class="block text-sm font-medium">Moderate</a>@endcan
                 @can('manage users')<a href="{{ route('admin.users.index') }}" class="block text-sm font-medium">Admin</a>@endcan
                 <a href="{{ route('prompts.create') }}" class="block text-sm font-medium text-indigo-600">New prompt</a>

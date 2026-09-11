@@ -31,8 +31,12 @@ class PromptVersionService
         'tags' => 'tags',
     ];
 
-    public function record(Prompt $prompt, User $actor, ?string $summary = null): PromptVersion
+    public function record(Prompt $prompt, User $actor, ?string $summary = null): ?PromptVersion
     {
+        if (! $actor->isPro()) {
+            return null;
+        }
+
         return DB::transaction(function () use ($prompt, $actor, $summary): PromptVersion {
             $lockedPrompt = Prompt::query()
                 ->whereKey($prompt->getKey())

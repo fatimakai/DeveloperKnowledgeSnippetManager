@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromptCollectionController;
@@ -42,22 +43,33 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/prompts/bookmarked', [PromptController::class, 'bookmarked'])->name('prompts.bookmarked');
     Route::get('/prompts/create', [PromptController::class, 'create'])->name('prompts.create');
     Route::get('/prompts/{prompt:slug}/edit', [PromptController::class, 'edit'])->name('prompts.edit');
-    Route::get('/prompts/{prompt:slug}/history', [PromptVersionController::class, 'index'])->name('prompts.history.index');
-    Route::get('/prompts/{prompt:slug}/history/{version}', [PromptVersionController::class, 'show'])->name('prompts.history.show');
-    Route::post('/prompts/{prompt:slug}/history/{version}/restore', [PromptVersionController::class, 'restore'])->name('prompts.history.restore');
+    Route::middleware('pro')->group(function (): void {
+        Route::get('/prompts/{prompt:slug}/history', [PromptVersionController::class, 'index'])->name('prompts.history.index');
+        Route::get('/prompts/{prompt:slug}/history/{version}', [PromptVersionController::class, 'show'])->name('prompts.history.show');
+        Route::post('/prompts/{prompt:slug}/history/{version}/restore', [PromptVersionController::class, 'restore'])->name('prompts.history.restore');
+    });
     Route::get('/exports/prompts.json', [PromptExportController::class, 'all'])->name('prompts.export.all');
     Route::post('/prompts/{prompt:slug}/reports', [PromptReportController::class, 'store'])->name('prompts.reports.store');
 
-    Route::resource('collections', PromptCollectionController::class)->except('edit');
-    Route::get('/collections/join/{token}', [PromptCollectionController::class, 'showInvite'])->name('collections.invites.show');
-    Route::post('/collections/join/{token}', [PromptCollectionController::class, 'join'])->name('collections.join');
-    Route::post('/collections/{collection:slug}/invite', [PromptCollectionController::class, 'invite'])->name('collections.invite');
-    Route::delete('/collections/{collection:slug}/invite', [PromptCollectionController::class, 'revokeInvite'])->name('collections.invite.destroy');
-    Route::patch('/collections/{collection:slug}/members/{user}', [PromptCollectionController::class, 'updateMember'])->name('collections.members.update');
-    Route::delete('/collections/{collection:slug}/members/{user}', [PromptCollectionController::class, 'removeMember'])->name('collections.members.destroy');
-    Route::delete('/collections/{collection:slug}/leave', [PromptCollectionController::class, 'leave'])->name('collections.leave');
-    Route::post('/collections/{collection:slug}/prompts', [PromptCollectionController::class, 'addPrompt'])->name('collections.prompts.store');
-    Route::delete('/collections/{collection:slug}/prompts/{prompt:slug}', [PromptCollectionController::class, 'removePrompt'])->name('collections.prompts.destroy');
+    Route::middleware('pro')->group(function (): void {
+        Route::resource('collections', PromptCollectionController::class)->except('edit');
+        Route::get('/collections/join/{token}', [PromptCollectionController::class, 'showInvite'])->name('collections.invites.show');
+        Route::post('/collections/join/{token}', [PromptCollectionController::class, 'join'])->name('collections.join');
+        Route::post('/collections/{collection:slug}/invite', [PromptCollectionController::class, 'invite'])->name('collections.invite');
+        Route::delete('/collections/{collection:slug}/invite', [PromptCollectionController::class, 'revokeInvite'])->name('collections.invite.destroy');
+        Route::patch('/collections/{collection:slug}/members/{user}', [PromptCollectionController::class, 'updateMember'])->name('collections.members.update');
+        Route::delete('/collections/{collection:slug}/members/{user}', [PromptCollectionController::class, 'removeMember'])->name('collections.members.destroy');
+        Route::delete('/collections/{collection:slug}/leave', [PromptCollectionController::class, 'leave'])->name('collections.leave');
+        Route::post('/collections/{collection:slug}/prompts', [PromptCollectionController::class, 'addPrompt'])->name('collections.prompts.store');
+        Route::delete('/collections/{collection:slug}/prompts/{prompt:slug}', [PromptCollectionController::class, 'removePrompt'])->name('collections.prompts.destroy');
+    });
+
+    Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+    Route::post('/billing/razorpay', [BillingController::class, 'razorpay'])->name('billing.razorpay');
+    Route::post('/billing/razorpay/confirm', [BillingController::class, 'confirmRazorpay'])->name('billing.razorpay.confirm');
+    Route::post('/billing/paypal', [BillingController::class, 'paypal'])->name('billing.paypal');
+    Route::get('/billing/paypal/return', [BillingController::class, 'paypalReturn'])->name('billing.paypal.return');
+    Route::delete('/billing/subscriptions/{subscription}', [BillingController::class, 'cancel'])->name('billing.cancel');
 
     Route::middleware('permission:manage users')->group(function (): void {
         Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');

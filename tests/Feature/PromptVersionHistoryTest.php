@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\CreatePrompt;
 use App\Livewire\EditPrompt;
 use App\Models\Prompt;
+use App\Models\Subscription;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\PromptVersionService;
@@ -27,6 +28,7 @@ class PromptVersionHistoryTest extends TestCase
     public function test_create_and_meaningful_edits_record_immutable_versions(): void
     {
         $user = User::factory()->create();
+        Subscription::factory()->for($user)->active()->create();
         $this->actingAs($user);
 
         Livewire::test(CreatePrompt::class)
@@ -64,6 +66,7 @@ class PromptVersionHistoryTest extends TestCase
     public function test_owner_can_compare_and_restore_an_older_version_without_losing_history(): void
     {
         $user = User::factory()->create();
+        Subscription::factory()->for($user)->active()->create();
         $prompt = Prompt::factory()->for($user)->private()->create([
             'title' => 'Original prompt',
             'prompt_text' => 'Original instructions',
@@ -111,6 +114,8 @@ class PromptVersionHistoryTest extends TestCase
     {
         $owner = User::factory()->create();
         $viewer = User::factory()->create();
+        Subscription::factory()->for($owner)->active()->create();
+        Subscription::factory()->for($viewer)->active()->create();
         $prompt = Prompt::factory()->for($owner)->public()->create();
         $version = app(PromptVersionService::class)->record($prompt, $owner);
 
@@ -128,6 +133,7 @@ class PromptVersionHistoryTest extends TestCase
     public function test_a_version_cannot_be_used_through_another_prompts_route(): void
     {
         $user = User::factory()->create();
+        Subscription::factory()->for($user)->active()->create();
         $prompt = Prompt::factory()->for($user)->create();
         $other = Prompt::factory()->for($user)->create();
         $otherVersion = app(PromptVersionService::class)->record($other, $user);

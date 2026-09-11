@@ -4,12 +4,15 @@ use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\PromptAnalysisApiController;
 use App\Http\Controllers\Api\PromptApiController;
 use App\Http\Controllers\Api\PublicPromptApiController;
+use App\Http\Controllers\BillingWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthApiController::class, 'login'])->middleware('throttle:api-login');
 
 Route::get('/public/prompts', [PublicPromptApiController::class, 'index']);
 Route::get('/public/prompts/{prompt:slug}', [PublicPromptApiController::class, 'show']);
+Route::post('/webhooks/razorpay', [BillingWebhookController::class, 'razorpay'])->name('webhooks.razorpay');
+Route::post('/webhooks/paypal', [BillingWebhookController::class, 'paypal'])->name('webhooks.paypal');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthApiController::class, 'logout']);

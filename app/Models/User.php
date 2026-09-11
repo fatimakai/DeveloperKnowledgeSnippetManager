@@ -102,6 +102,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(PromptReport::class, 'reported_by');
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function isPro(): bool
+    {
+        return $this->subscriptions()
+            ->where('status', Subscription::STATUS_ACTIVE)
+            ->where('current_period_end', '>', now())
+            ->exists();
+    }
+
     public function twoFactorEnabled(): bool
     {
         return filled($this->two_factor_secret) && $this->two_factor_confirmed_at !== null;

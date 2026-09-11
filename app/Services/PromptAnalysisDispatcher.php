@@ -32,7 +32,7 @@ class PromptAnalysisDispatcher
             }
 
             $key = $this->rateLimitKey($user);
-            $limit = max(1, (int) config('prompt-analysis.per_hour'));
+            $limit = $this->limitFor($user);
             $analysis = RateLimiter::attempt($key, $limit, fn () => $lockedPrompt->analyses()->create([
                 'user_id' => $user->id,
                 'status' => PromptAnalysis::STATUS_PENDING,
@@ -70,12 +70,17 @@ class PromptAnalysisDispatcher
     {
         return RateLimiter::remaining(
             $this->rateLimitKey($user),
-            max(1, (int) config('prompt-analysis.per_hour'))
+            $this->limitFor($user)
         );
     }
 
     private function rateLimitKey(User $user): string
     {
         return 'prompt-analysis:user:'.$user->id;
+    }
+
+    private function limitFor(User $user): int
+    {
+        return max(1, (int) config($user->isPro() ? 'prompt-analysis.pro_per_hour' : 'prompt-analysis.per_hour'));
     }
 }

@@ -30,7 +30,10 @@ class PromptApiResource extends JsonResource
                 'name' => $this->user->name,
             ]),
             'upvotes_count' => $this->whenCounted('upvotes'),
-            'current_version' => $this->whenCounted('versions'),
+            'current_version' => $this->when(
+                $request->user()?->can('viewHistory', $this->resource) === true,
+                fn () => $this->versions_count,
+            ),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

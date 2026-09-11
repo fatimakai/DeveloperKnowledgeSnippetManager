@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Prompt;
+use App\Models\Subscription;
 use App\Models\Tag;
 use App\Models\Upvote;
 use App\Models\User;
@@ -31,6 +32,17 @@ class DatabaseSeeder extends Seeder
             if (! $user->hasAnyRole(PlatformRoleService::ROLES)) {
                 $user->assignRole(PlatformRoleService::USER);
             }
+            $user->subscriptions()->create([
+                'provider' => Subscription::PROVIDER_PAYPAL,
+                'provider_subscription_id' => 'I-DEMO-'.str_pad((string) $user->id, 8, '0', STR_PAD_LEFT),
+                'provider_plan_id' => 'P-PROMPTFORGE-DEMO',
+                'status' => Subscription::STATUS_ACTIVE,
+                'amount' => 900,
+                'currency' => 'USD',
+                'current_period_start' => now(),
+                'current_period_end' => now()->addYear(),
+                'last_synced_at' => now(),
+            ]);
         });
         $tags = collect(['marketing', 'engineering', 'research', 'support', 'writing', 'analysis'])
             ->map(fn (string $name) => Tag::create(compact('name')));

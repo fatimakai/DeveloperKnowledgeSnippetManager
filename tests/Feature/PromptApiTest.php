@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Prompt;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -15,6 +16,7 @@ class PromptApiTest extends TestCase
     public function test_authenticated_user_can_manage_prompts_by_slug(): void
     {
         $user = User::factory()->create();
+        Subscription::factory()->for($user)->active()->create();
         Sanctum::actingAs($user);
 
         $created = $this->postJson('/api/prompts', [

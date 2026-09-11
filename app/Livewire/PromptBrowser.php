@@ -138,8 +138,10 @@ class PromptBrowser extends Component
     {
         return match ($this->mode) {
             'mine' => $query->where(function (Builder $mine): void {
-                $mine->where('user_id', auth()->id())
-                    ->orWhereHas('collection.memberships', fn (Builder $members) => $members->where('user_id', auth()->id()));
+                $mine->where('user_id', auth()->id());
+                if (auth()->user()->isPro()) {
+                    $mine->orWhereHas('collection.memberships', fn (Builder $members) => $members->where('user_id', auth()->id()));
+                }
             }),
             'bookmarked' => $query
                 ->where('visibility', Prompt::VISIBILITY_PUBLIC)
