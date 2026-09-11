@@ -17,7 +17,7 @@ class DashboardLoadTest extends TestCase
             ->assertOk()
             ->assertSee('PromptForge')
             ->assertHeader('X-Content-Type-Options', 'nosniff')
-            ->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+            ->assertHeader('X-Frame-Options', 'DENY');
         $this->get('/prompts')->assertOk()->assertSee('Discover prompts');
     }
 

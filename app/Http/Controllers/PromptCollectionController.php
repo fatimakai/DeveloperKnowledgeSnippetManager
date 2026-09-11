@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Prompt;
 use App\Models\PromptCollection;
+use App\Models\User;
+use App\Rules\SafeText;
+use App\Services\CollectionAuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +16,8 @@ use Illuminate\View\View;
 
 class PromptCollectionController extends Controller
 {
+    public function __construct(private readonly CollectionAuditLogger $audit) {}
+
     public function index(Request $request): View
     {
         $collections = $request->user()->collections()
@@ -29,8 +34,8 @@ class PromptCollectionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'description' => ['nullable', 'string', 'max:2000'],
+            'name' => ['required', 'string', 'max:120', new SafeText(multiline: false)],
+            'description' => ['nullable', 'string', 'max:2000', new SafeText],
         ]);
 
         $collection = DB::transaction(function () use ($data, $request): PromptCollection {
@@ -44,6 +49,7 @@ class PromptCollectionController extends Controller
                 'role' => PromptCollection::ROLE_OWNER,
                 'joined_at' => now(),
             ]);
+            $this->audit->record($collection, $request->user(), 'collection.created');
 
             return $collection;
         });
@@ -54,6 +60,7 @@ class PromptCollectionController extends Controller
     public function show(Request $request, PromptCollection $collection): View
     {
         Gate::authorize('view', $collection);
+        $this->audit->recordAccess($collection, $request->user());
         $collection->load(['owner', 'memberships.user', 'prompts.user', 'prompts.tags']);
         $membership = $collection->membershipFor($request->user());
         $personalPrompts = Gate::allows('addPrompt', $collection)
@@ -67,18 +74,24 @@ class PromptCollectionController extends Controller
     {
         Gate::authorize('update', $collection);
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'description' => ['nullable', 'string', 'max:2000'],
+            'name' => ['required', 'string', 'max:120', new SafeText(multiline: false)],
+            'description' => ['nullable', 'string', 'max:2000', new SafeText],
         ]);
-        $collection->update([...$data, 'description' => $data['description'] ?: null]);
+        DB::transaction(function () use ($collection, $data, $request): void {
+            $collection->update([...$data, 'description' => $data['description'] ?: null]);
+            $this->audit->record($collection, $request->user(), 'collection.updated');
+        });
 
         return back()->with('success', 'Collection updated.');
     }
 
-    public function destroy(PromptCollection $collection): RedirectResponse
+    public function destroy(Request $request, PromptCollection $collection): RedirectResponse
     {
         Gate::authorize('delete', $collection);
-        $collection->delete();
+        DB::transaction(function () use ($collection, $request): void {
+            $this->audit->record($collection, $request->user(), 'collection.deleted');
+            $collection->delete();
+        });
 
         return to_route('collections.index')->with('success', 'Collection deleted. Its prompts are personal again.');
     }
@@ -88,20 +101,29 @@ class PromptCollectionController extends Controller
         Gate::authorize('manageMembers', $collection);
         $data = $request->validate(['role' => ['required', 'in:editor,viewer']]);
         $token = Str::random(64);
-        $collection->update([
-            'invite_token_hash' => hash('sha256', $token),
-            'invite_role' => $data['role'],
-            'invite_expires_at' => now()->addDays(7),
-        ]);
+        DB::transaction(function () use ($collection, $data, $request, $token): void {
+            $collection->update([
+                'invite_token_hash' => hash('sha256', $token),
+                'invite_role' => $data['role'],
+                'invite_expires_at' => now()->addDays(7),
+            ]);
+            $this->audit->record($collection, $request->user(), 'invite.created', metadata: [
+                'role' => $data['role'],
+                'expires_at' => $collection->invite_expires_at?->toIso8601String(),
+            ]);
+        });
 
         return back()->with('success', 'A new seven-day invite link was created.')
             ->with('invite_url', route('collections.invites.show', $token));
     }
 
-    public function revokeInvite(PromptCollection $collection): RedirectResponse
+    public function revokeInvite(Request $request, PromptCollection $collection): RedirectResponse
     {
         Gate::authorize('manageMembers', $collection);
-        $collection->update(['invite_token_hash' => null, 'invite_expires_at' => null]);
+        DB::transaction(function () use ($collection, $request): void {
+            $collection->update(['invite_token_hash' => null, 'invite_expires_at' => null]);
+            $this->audit->record($collection, $request->user(), 'invite.revoked');
+        });
 
         return back()->with('success', 'Invite link revoked.');
     }
@@ -110,17 +132,30 @@ class PromptCollectionController extends Controller
     {
         $collection = $this->collectionForToken($token);
 
-        $collection->memberships()->firstOrCreate(
-            ['user_id' => $request->user()->id],
-            ['role' => $collection->invite_role, 'joined_at' => now()],
-        );
+        DB::transaction(function () use ($collection, $request): void {
+            $membership = $collection->memberships()->firstOrCreate(
+                ['user_id' => $request->user()->id],
+                ['role' => $collection->invite_role, 'joined_at' => now()],
+            );
+
+            if ($membership->wasRecentlyCreated) {
+                $this->audit->record(
+                    $collection,
+                    $request->user(),
+                    'member.joined',
+                    targetUser: $request->user(),
+                    metadata: ['role' => $membership->role],
+                );
+            }
+        });
 
         return to_route('collections.show', $collection)->with('success', 'You joined the collection.');
     }
 
-    public function showInvite(string $token): View
+    public function showInvite(Request $request, string $token): View
     {
         $collection = $this->collectionForToken($token);
+        $this->audit->recordOnce($collection, $request->user(), 'invite.viewed');
 
         return view('collections.invite', compact('collection', 'token'));
     }
@@ -130,16 +165,33 @@ class PromptCollectionController extends Controller
         Gate::authorize('manageMembers', $collection);
         abort_if($collection->owner_id === $user, 422, 'The collection owner role cannot be changed.');
         $data = $request->validate(['role' => ['required', 'in:editor,viewer']]);
-        $collection->memberships()->where('user_id', $user)->firstOrFail()->update($data);
+        DB::transaction(function () use ($collection, $user, $data, $request): void {
+            $membership = $collection->memberships()->where('user_id', $user)->firstOrFail();
+            $oldRole = $membership->role;
+            $membership->update($data);
+
+            if ($oldRole !== $data['role']) {
+                $this->audit->record(
+                    $collection,
+                    $request->user(),
+                    'member.role_changed',
+                    targetUser: User::findOrFail($user),
+                    metadata: ['old_role' => $oldRole, 'new_role' => $data['role']],
+                );
+            }
+        });
 
         return back()->with('success', 'Member role updated.');
     }
 
-    public function removeMember(PromptCollection $collection, int $user): RedirectResponse
+    public function removeMember(Request $request, PromptCollection $collection, int $user): RedirectResponse
     {
         Gate::authorize('manageMembers', $collection);
         abort_if($collection->owner_id === $user, 422, 'The collection owner cannot be removed.');
-        $collection->memberships()->where('user_id', $user)->firstOrFail()->delete();
+        DB::transaction(function () use ($collection, $user, $request): void {
+            $collection->memberships()->where('user_id', $user)->firstOrFail()->delete();
+            $this->audit->record($collection, $request->user(), 'member.removed', targetUser: User::findOrFail($user));
+        });
 
         return back()->with('success', 'Member removed.');
     }
@@ -148,7 +200,10 @@ class PromptCollectionController extends Controller
     {
         Gate::authorize('view', $collection);
         abort_if($collection->owner_id === $request->user()->id, 422, 'Owners must delete the collection instead.');
-        $collection->memberships()->where('user_id', $request->user()->id)->delete();
+        DB::transaction(function () use ($collection, $request): void {
+            $collection->memberships()->where('user_id', $request->user()->id)->delete();
+            $this->audit->record($collection, $request->user(), 'member.left', targetUser: $request->user());
+        });
 
         return to_route('collections.index')->with('success', 'You left the collection.');
     }
@@ -159,7 +214,10 @@ class PromptCollectionController extends Controller
         $data = $request->validate(['prompt_id' => ['required', 'integer']]);
         $prompt = Prompt::query()->whereKey($data['prompt_id'])
             ->where('user_id', $request->user()->id)->whereNull('collection_id')->firstOrFail();
-        $prompt->update(['collection_id' => $collection->id, 'visibility' => Prompt::VISIBILITY_PRIVATE]);
+        DB::transaction(function () use ($prompt, $collection, $request): void {
+            $prompt->update(['collection_id' => $collection->id, 'visibility' => Prompt::VISIBILITY_PRIVATE]);
+            $this->audit->record($collection, $request->user(), 'prompt.added', prompt: $prompt);
+        });
 
         return back()->with('success', 'Prompt added to the collection.');
     }
@@ -169,7 +227,10 @@ class PromptCollectionController extends Controller
         Gate::authorize('addPrompt', $collection);
         abort_unless($prompt->collection_id === $collection->id, 404);
         abort_unless($prompt->user_id === $request->user()->id || $collection->owner_id === $request->user()->id, 403);
-        $prompt->update(['collection_id' => null]);
+        DB::transaction(function () use ($collection, $request, $prompt): void {
+            $this->audit->record($collection, $request->user(), 'prompt.removed', prompt: $prompt);
+            $prompt->update(['collection_id' => null]);
+        });
 
         return back()->with('success', 'Prompt removed from the collection.');
     }

@@ -91,6 +91,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CollectionMember::class);
     }
 
+    public function collectionAuditLogs(): HasMany
+    {
+        return $this->hasMany(CollectionAuditLog::class, 'actor_id');
+    }
+
     public function collections()
     {
         return $this->belongsToMany(PromptCollection::class, 'collection_members')

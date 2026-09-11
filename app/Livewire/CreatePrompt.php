@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Prompt;
 use App\Models\Tag;
 use App\Services\PromptVersionService;
+use App\Support\PromptInput;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -28,21 +29,12 @@ class CreatePrompt extends Component
 
     protected function rules(): array
     {
-        return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'promptText' => ['required', 'string', 'max:50000'],
-            'targetModel' => ['required', 'string', 'max:100'],
-            'exampleInput' => ['nullable', 'string', 'max:10000'],
-            'exampleOutput' => ['nullable', 'string', 'max:10000'],
-            'visibility' => ['required', 'in:private,public'],
-            'tags' => ['nullable', 'string', 'max:500'],
-        ];
+        return PromptInput::livewireRules();
     }
 
     public function save()
     {
-        $data = $this->validate();
+        $data = PromptInput::normalize($this->validate());
 
         DB::transaction(function () use ($data): void {
             $prompt = Prompt::create([
@@ -55,7 +47,7 @@ class CreatePrompt extends Component
                 'example_output' => $data['exampleOutput'] ?: null,
                 'visibility' => $data['visibility'],
             ]);
-            $prompt->tags()->sync($this->tagIds());
+            $prompt->tags()->sync($this->tagIds($data['tags']));
             app(PromptVersionService::class)->record($prompt, auth()->user());
         });
 
@@ -69,13 +61,12 @@ class CreatePrompt extends Component
         return view('livewire.prompt-form', ['heading' => 'Create prompt', 'submitLabel' => 'Create prompt']);
     }
 
-    private function tagIds()
+    private function tagIds(string $tags)
     {
-        return collect(explode(',', $this->tags))
+        return collect(explode(',', $tags))
             ->map(fn (string $tag) => trim(mb_strtolower($tag)))
             ->filter()
             ->unique()
-            ->take(10)
-            ->map(fn (string $tag) => Tag::firstOrCreate(['name' => mb_substr($tag, 0, 50)])->id);
+            ->map(fn (string $tag) => Tag::firstOrCreate(['name' => $tag])->id);
     }
 }

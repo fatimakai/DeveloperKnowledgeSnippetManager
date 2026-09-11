@@ -17,7 +17,8 @@ Route::post('/webhooks/paypal', [BillingWebhookController::class, 'paypal'])->na
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthApiController::class, 'logout']);
     Route::get('/prompts/{prompt}/analyses', [PromptAnalysisApiController::class, 'index'])->name('api.prompts.analyses.index');
-    Route::post('/prompts/{prompt}/analyses', [PromptAnalysisApiController::class, 'store'])->name('api.prompts.analyses.store');
+    Route::post('/prompts/{prompt}/analyses', [PromptAnalysisApiController::class, 'store'])
+        ->middleware('throttle:prompt-analysis-api')->name('api.prompts.analyses.store');
     Route::get('/prompts/{prompt}/analyses/{analysis}', [PromptAnalysisApiController::class, 'show'])->name('api.prompts.analyses.show');
     Route::apiResource('prompts', PromptApiController::class)
         ->parameters(['prompts' => 'prompt'])

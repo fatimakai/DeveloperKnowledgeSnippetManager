@@ -15,6 +15,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - Private shared collections with Owner, Editor, and Viewer membership roles
 - Expiring invite links stored as hashes, plus prompt reporting and moderation
 - Sandbox Pro subscriptions through Razorpay or PayPal with signed, idempotent webhooks
+- OWASP-oriented hardening with shared prompt validation, AI burst limits, security headers, and collection audit logs
 - Community upvotes and personal bookmarks
 - Policy-based personal and shared prompt editing and deletion
 - Individual and account-wide JSON exports
@@ -22,7 +23,7 @@ PromptForge is a collaborative library for creating, discovering, and refining p
 - User profiles, email verification, and queued welcome email
 - Responsive light/dark interface
 
-The OWASP hardening pass is planned in the next phase.
+The Phase 9 security review, deployment checklist, and residual-risk register are documented in [`SECURITY.md`](SECURITY.md).
 
 ## Stack
 
@@ -52,7 +53,7 @@ Configure database, mail, cache, and queue values in `.env`. Run a queue worker 
 php artisan queue:work
 ```
 
-To enable AI analysis, set `OPENROUTER_API_KEY` and optionally `OPENROUTER_MODEL`. `PROMPT_ANALYSIS_PER_HOUR` controls the per-user cost limit and defaults to five.
+To enable AI analysis, set `OPENROUTER_API_KEY` and optionally `OPENROUTER_MODEL`. `PROMPT_ANALYSIS_PER_HOUR` controls the Free per-user hourly cost limit, `PROMPT_ANALYSIS_PRO_PER_HOUR` controls Pro, and `PROMPT_ANALYSIS_BURST_PER_MINUTE` defaults to three for both plans.
 
 PromptForge Pro costs $9/month USD in the demo and raises the AI quota from 5 to 25 analyses per hour while unlocking version history and shared collections. Billing is intentionally sandbox-only: configure `RAZORPAY_KEY_ID` with an `rzp_test_` key plus a Razorpay plan/webhook secret, and configure PayPal sandbox credentials, plan ID, and webhook ID. Point gateway webhooks to `/api/webhooks/razorpay` and `/api/webhooks/paypal`.
 
@@ -84,6 +85,7 @@ The test environment uses an in-memory SQLite database and does not require Dock
 - `/prompts/bookmarked` - bookmarks
 - `/prompts/create` - prompt creation
 - `/collections` - shared collection workspace
+- `/collections/{slug}/audit` - owner-only collection security audit log
 - `/billing` - Free/Pro comparison and sandbox checkout
 - `/moderation` - Moderator/Admin report queue
 - `/admin/users` - Admin-only platform role management

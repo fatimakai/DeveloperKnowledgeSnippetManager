@@ -34,5 +34,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api-login', fn (Request $request) => Limit::perMinute(5)->by(
             Str::lower((string) $request->input('email')).'|'.$request->ip()
         ));
+
+        RateLimiter::for('prompt-analysis-api', fn (Request $request) => Limit::perMinute(
+            max(1, (int) config('prompt-analysis.burst_per_minute'))
+        )->by('analysis-api:'.($request->user()?->id ?? $request->ip())));
     }
 }

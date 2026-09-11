@@ -78,6 +78,11 @@ class PromptCollection extends Model
         return $this->hasMany(Prompt::class, 'collection_id');
     }
 
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(CollectionAuditLog::class, 'prompt_collection_id');
+    }
+
     public function membershipFor(User $user): ?CollectionMember
     {
         return $this->memberships()->where('user_id', $user->id)->first();

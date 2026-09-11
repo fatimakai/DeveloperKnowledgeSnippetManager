@@ -32,7 +32,14 @@ class PromptAnalysisDispatcher
             }
 
             $key = $this->rateLimitKey($user);
+            $burstKey = $this->burstRateLimitKey($user);
             $limit = $this->limitFor($user);
+
+            if (RateLimiter::tooManyAttempts($burstKey, $this->burstLimit())) {
+                $seconds = max(1, RateLimiter::availableIn($burstKey));
+                throw new PromptAnalysisException("Too many analysis requests. Try again in {$seconds} second(s).", 429);
+            }
+
             $analysis = RateLimiter::attempt($key, $limit, fn () => $lockedPrompt->analyses()->create([
                 'user_id' => $user->id,
                 'status' => PromptAnalysis::STATUS_PENDING,
@@ -46,6 +53,8 @@ class PromptAnalysisDispatcher
                 $minutes = max(1, (int) ceil(RateLimiter::availableIn($key) / 60));
                 throw new PromptAnalysisException("Analysis limit reached. Try again in {$minutes} minute(s).", 429);
             }
+
+            RateLimiter::hit($burstKey, 60);
 
             return $analysis;
         });
@@ -77,6 +86,16 @@ class PromptAnalysisDispatcher
     private function rateLimitKey(User $user): string
     {
         return 'prompt-analysis:user:'.$user->id;
+    }
+
+    private function burstRateLimitKey(User $user): string
+    {
+        return 'prompt-analysis:burst:user:'.$user->id;
+    }
+
+    private function burstLimit(): int
+    {
+        return max(1, (int) config('prompt-analysis.burst_per_minute'));
     }
 
     private function limitFor(User $user): int

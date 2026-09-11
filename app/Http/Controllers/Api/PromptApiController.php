@@ -7,6 +7,7 @@ use App\Http\Resources\PromptApiResource;
 use App\Models\Prompt;
 use App\Models\Tag;
 use App\Services\PromptVersionService;
+use App\Support\PromptInput;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class PromptApiController extends Controller
 
     public function store(Request $request, PromptVersionService $versions): JsonResponse
     {
-        $data = $request->validate($this->rules());
+        $data = PromptInput::normalize($request->validate(PromptInput::apiRules()));
 
         $prompt = DB::transaction(function () use ($data, $request, $versions): Prompt {
             $prompt = Prompt::create([
@@ -60,7 +61,7 @@ class PromptApiController extends Controller
     public function update(Request $request, Prompt $prompt, PromptVersionService $versions): PromptApiResource
     {
         Gate::authorize('update', $prompt);
-        $data = $request->validate($this->rules(partial: true));
+        $data = PromptInput::normalize($request->validate(PromptInput::apiRules(partial: true)));
 
         DB::transaction(function () use ($data, $prompt, $request, $versions): void {
             $prompt->update(collect($data)->except('tags')->all());
@@ -79,23 +80,6 @@ class PromptApiController extends Controller
         $prompt->delete();
 
         return response()->noContent();
-    }
-
-    private function rules(bool $partial = false): array
-    {
-        $required = $partial ? 'sometimes' : 'required';
-
-        return [
-            'title' => [$required, 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'prompt_text' => [$required, 'string', 'max:50000'],
-            'target_model' => [$required, 'string', 'max:100'],
-            'example_input' => ['nullable', 'string', 'max:10000'],
-            'example_output' => ['nullable', 'string', 'max:10000'],
-            'visibility' => ['sometimes', 'in:private,public'],
-            'tags' => ['sometimes', 'array', 'max:10'],
-            'tags.*' => ['string', 'max:50'],
-        ];
     }
 
     private function syncTags(Prompt $prompt, array $names): void

@@ -22,6 +22,11 @@ class PromptCollectionPolicy
         return $this->update($user, $collection);
     }
 
+    public function viewAudit(User $user, PromptCollection $collection): bool
+    {
+        return $this->update($user, $collection);
+    }
+
     public function addPrompt(User $user, PromptCollection $collection): bool
     {
         return $user->isPro() && $collection->memberships()

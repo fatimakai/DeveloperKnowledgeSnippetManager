@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\CollectionAuditLogController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromptCollectionController;
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
     Route::middleware('pro')->group(function (): void {
         Route::resource('collections', PromptCollectionController::class)->except('edit');
+        Route::get('/collections/{collection:slug}/audit', [CollectionAuditLogController::class, 'index'])->name('collections.audit.index');
         Route::get('/collections/join/{token}', [PromptCollectionController::class, 'showInvite'])->name('collections.invites.show');
         Route::post('/collections/join/{token}', [PromptCollectionController::class, 'join'])->name('collections.join');
         Route::post('/collections/{collection:slug}/invite', [PromptCollectionController::class, 'invite'])->name('collections.invite');
